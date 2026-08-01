@@ -11,6 +11,7 @@ import { AdminParticipantsPage } from './features/admin/AdminParticipantsPage';
 import { AdminCheckinsPage } from './features/admin/AdminCheckinsPage';
 import { AdminSurveysPage } from './features/admin/AdminSurveysPage';
 import { AdminResponsesPage } from './features/admin/AdminResponsesPage';
+import { AdminFinancialsPage } from './features/admin/AdminFinancialsPage';
 import { AdminFunderUpdatesPage } from './features/admin/AdminFunderUpdatesPage';
 import { AdminCampaignsPage } from './features/admin/AdminCampaignsPage';
 import { FunderDashboardPage } from './features/funder/FunderDashboardPage';
@@ -52,6 +53,7 @@ export default function App() {
         <Route path="/surveys" element={<SurveysRoute />} />
         <Route path="/history" element={<ParticipantHistoryPage />} />
         <Route path="/responses" element={<AdminResponsesPage />} />
+        <Route path="/financials" element={<AdminFinancialsPage />} />
         <Route path="/funder-updates" element={<AdminFunderUpdatesPage />} />
         <Route path="/campaigns" element={<AdminCampaignsPage />} />
         <Route path="/updates" element={<FunderUpdatesPage />} />

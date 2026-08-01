@@ -14,6 +14,7 @@ const NAV_BY_ROLE = {
     { to: '/checkins', label: 'Check-ins' },
     { to: '/surveys', label: 'Surveys' },
     { to: '/responses', label: 'Responses' },
+    { to: '/financials', label: 'Cohort Financials' },
     { to: '/funder-updates', label: 'Funder Comms' },
     { to: '/campaigns', label: 'Marketing' },
   ],
