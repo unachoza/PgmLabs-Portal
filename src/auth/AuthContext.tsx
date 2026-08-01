@@ -42,7 +42,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    return () => sub.subscription.unsubscribe();
+    return () => {
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   async function signIn(email: string, password: string) {
