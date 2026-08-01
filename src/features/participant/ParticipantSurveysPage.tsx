@@ -1,0 +1,109 @@
+import { useState } from 'react';
+import { useApiResource } from '../../lib/useApi';
+import { api } from '../../lib/apiClient';
+import type { Survey } from '../../lib/types';
+import { Modal } from '../../components/Modal';
+import { FormField } from '../../components/FormField';
+
+export function ParticipantSurveysPage() {
+  const { data: surveys, loading, error } = useApiResource<Survey[]>('/surveys');
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [survey, setSurvey] = useState<Survey | null>(null);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [done, setDone] = useState<Set<string>>(new Set());
+
+  async function open(id: string) {
+    setActiveId(id);
+    setAnswers({});
+    setSubmitError(null);
+    const full = await api.get<Survey>(`/surveys/${id}`);
+    setSurvey(full);
+  }
+
+  async function submit() {
+    if (!survey) return;
+    setSubmitting(true);
+    setSubmitError(null);
+    try {
+      const payload = {
+        answers: (survey.questions ?? []).map((q) => ({ question_id: q.id, answer_text: answers[q.id] ?? '' })),
+      };
+      await api.post(`/surveys/${survey.id}/submissions`, payload);
+      setDone((prev) => new Set(prev).add(survey.id));
+      setActiveId(null);
+      setSurvey(null);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Could not submit survey.');
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  if (loading) return <div className="page-loading">Loading surveys…</div>;
+  if (error) return <div className="banner-error">{error}</div>;
+
+  return (
+    <div>
+      <h1>Surveys</h1>
+      {(surveys ?? []).length === 0 && <div className="empty-state">No open surveys right now.</div>}
+      <div className="card-grid">
+        {(surveys ?? []).map((s) => (
+          <div className="card" key={s.id}>
+            <h3>{s.title}</h3>
+            <p className="form-hint">{s.description}</p>
+            <button className="btn btn-sm" onClick={() => open(s.id)} disabled={done.has(s.id)}>
+              {done.has(s.id) ? 'Completed' : 'Fill out'}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {activeId && survey && (
+        <Modal title={survey.title} onClose={() => setActiveId(null)}>
+          {submitError && <div className="banner-error">{submitError}</div>}
+          {(survey.questions ?? []).map((q) => (
+            <FormField key={q.id} label={q.question_text} required={q.required}>
+              {(id) =>
+                q.question_type === 'boolean' ? (
+                  <select
+                    id={id}
+                    value={answers[q.id] ?? ''}
+                    onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
+                  >
+                    <option value="">Select…</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                  </select>
+                ) : q.question_type === 'number' ? (
+                  <input
+                    id={id}
+                    type="number"
+                    value={answers[q.id] ?? ''}
+                    onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
+                  />
+                ) : (
+                  <textarea
+                    id={id}
+                    rows={2}
+                    value={answers[q.id] ?? ''}
+                    onChange={(e) => setAnswers({ ...answers, [q.id]: e.target.value })}
+                  />
+                )
+              }
+            </FormField>
+          ))}
+          <div className="form-actions">
+            <button className="btn" onClick={submit} disabled={submitting}>
+              {submitting ? 'Submitting…' : 'Submit survey'}
+            </button>
+            <button className="btn btn-secondary" onClick={() => setActiveId(null)}>
+              Cancel
+            </button>
+          </div>
+        </Modal>
+      )}
+    </div>
+  );
+}
