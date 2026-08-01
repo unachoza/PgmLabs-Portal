@@ -28,9 +28,16 @@ Copy `.env.example` to `.env` and fill in your Supabase project values:
 cp .env.example .env
 ```
 
-- `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` — used by the browser for auth only.
-- `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` — used by the API functions. **Never** expose the service-role key to the browser; it bypasses RLS.
-- `HUBSPOT_TOKEN` — private app token used by the HubSpot sync job.
+- `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` — browser-only Supabase auth.
+- `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` — server-only Supabase access for API functions and sync scripts. **Never** expose the service-role key to the browser; it bypasses RLS.
+- `HUBSPOT_TOKEN` — HubSpot private app access token used by the sync script.
+
+For HubSpot, create a private app in HubSpot and grant these read scopes:
+
+- `crm.objects.contacts.read`
+- `crm.objects.companies.read`
+- `crm.objects.deals.read`
+- `crm.objects.tickets.read`
 
 ### 3. Apply the database schema
 
@@ -81,7 +88,17 @@ vercel dev
 
 Push to a Vercel-connected repository. Set all five environment variables in the Vercel project settings (the two `VITE_` ones are build-time; the three server ones are runtime).
 
-The HubSpot import runs from `GET /api/integrations/hubspot/sync` and is scheduled twice daily by Vercel cron. If you want a different cadence, change the cron entry in `vercel.json`.
+For HubSpot imports, run the manual sync script when you need to refresh data:
+
+```bash
+npm run hubspot:sync
+```
+
+You can preview row counts first with:
+
+```bash
+node scripts/hubspot-sync.mjs --dry-run
+```
 
 ## API
 
