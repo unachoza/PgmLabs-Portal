@@ -28,8 +28,16 @@ Copy `.env.example` to `.env` and fill in your Supabase project values:
 cp .env.example .env
 ```
 
-- `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` — used by the browser for auth only.
-- `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` — used by the API functions. **Never** expose the service-role key to the browser; it bypasses RLS.
+- `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` — browser-only Supabase auth.
+- `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` — server-only Supabase access for API functions and sync scripts. **Never** expose the service-role key to the browser; it bypasses RLS.
+- `HUBSPOT_TOKEN` — HubSpot private app access token used by the sync script.
+
+For HubSpot, create a private app in HubSpot and grant these read scopes:
+
+- `crm.objects.contacts.read`
+- `crm.objects.companies.read`
+- `crm.objects.deals.read`
+- `crm.objects.tickets.read`
 
 ### 3. Apply the database schema
 
@@ -38,6 +46,7 @@ Run the migrations in order against your Supabase project (SQL editor, `psql`, o
 ```bash
 supabase/migrations/001_init.sql   # tables, enums, indexes
 supabase/migrations/002_rls.sql    # row-level security policies
+supabase/migrations/003_hubspot.sql # HubSpot CRM sync tables
 ```
 
 ### 4. Seed sample data (local/dev only)
@@ -77,7 +86,19 @@ vercel dev
 
 ## Deploying
 
-Push to a Vercel-connected repository. Set all four environment variables in the Vercel project settings (the two `VITE_` ones are build-time; the two server ones are runtime).
+Push to a Vercel-connected repository. Set all five environment variables in the Vercel project settings (the two `VITE_` ones are build-time; the three server ones are runtime).
+
+For HubSpot imports, run the manual sync script when you need to refresh data:
+
+```bash
+npm run hubspot:sync
+```
+
+You can preview row counts first with:
+
+```bash
+node scripts/hubspot-sync.mjs --dry-run
+```
 
 ## API
 
@@ -117,6 +138,22 @@ Not yet implemented. When tests are added, the two highest-value targets are:
 2. **Funder anonymization boundary** — an integration test hitting `/api/metrics` and `/api/funder-updates` with a funder token, asserting no participant PII appears in the response.
 
 Broad UI coverage was deliberately deferred; these two are the failures that would actually be dangerous.
+
+## Manual HubSpot sync
+
+Run the one-time import script from the project root:
+
+```bash
+npm run hubspot:sync
+```
+
+The script reads `.env`, pulls contacts, companies, deals, and tickets from HubSpot, and upserts them into the `hubspot_*` tables in Supabase.
+
+To preview the row counts without writing anything, run:
+
+```bash
+node scripts/hubspot-sync.mjs --dry-run
+```
 
 ## Architecture notes
 
