@@ -8,15 +8,15 @@ web
 
 ## Stack
 
-React 19 + Vite + TypeScript is the authoritative go-forward frontend (the `main`
-branch), confirmed by the user. Today `main` holds only the Vite starter
-scaffold — no product logic yet.
+- **Frontend:** React 19 + Vite + TypeScript, with React Router and zod. This is
+  the authoritative implementation on `main`.
+- **Backend:** Supabase, accessed through a Vercel-style serverless `api/` layer
+  (participants, check-ins, surveys, responses, metrics, campaigns,
+  funder-updates, CSV export).
 
-The `feature/miguel` branch (Node/Express + SQLite + vanilla JS, JWT auth) is a
-**functional and data-model reference**, not the go-forward frontend: it already
-implements the role dashboards, schema, and flows the React app is expected to
-deliver. The backend that will pair with the React/Vite frontend is an open
-decision (reuse Miguel's Express API vs. build new).
+This resolved in code: PR #3 merged the full React + Supabase portal, and the
+earlier Node/Express + SQLite prototype (`feature/miguel`, PR #2) was closed and
+superseded — it is historical context only, not a live reference.
 
 ## Users
 
@@ -60,20 +60,20 @@ company via the Tripletex integration during the hackathon.
   to their books → scheduled pull normalizes each company's P&L → cohort
   dashboard + funder-ready reports. Access is explicit, read-only, and revocable.
 - Built at the Social Impact HackAIthon — San Diego (team ProgramLabs4Life).
-- Reference data model lives on `feature/miguel` (11 SQLite tables) with seed
-  data for admin, funder, and participant flows.
+- Data model and role flows are implemented on `main` (React frontend +
+  Supabase-backed `api/` layer).
 
 ## Capabilities and Constraints
 
-Confirmed functionality (implemented on `feature/miguel` as reference; to be
-delivered in the React frontend):
+Confirmed functionality (implemented on `main`: React feature pages for all three
+roles plus the serverless `api/` layer):
 
-- Role-based dashboards for admin / participant / funder.
-- JWT bearer auth, bcrypt-hashed passwords, role/least-privilege checks.
-- Check-ins (admin→participant outreach) and participant responses (JSON payload).
+- Role-based dashboards for admin / participant / funder (auth context +
+  protected routes; Supabase-backed auth).
+- Check-ins (admin→participant outreach) and participant responses.
 - Surveys: questions, submissions, answers, active/inactive state.
 - Aggregate metrics endpoint computing cohort KPIs; CSV export for reporting.
-- Funder updates and marketing campaigns; communication logs.
+- Funder updates and marketing campaigns.
 - Funder endpoints are aggregate-only by design — no raw participant records.
 
 Financial integration:
@@ -84,7 +84,6 @@ Financial integration:
   one company's books. Multi-company access model (accountant-firm setup vs.
   per-company OAuth) is undecided and must be resolved before a cohort-wide
   dashboard is promised.
-- Backend for the React frontend is undecided (see Stack).
 
 Terminology: cohort, participant, funder, check-in, funder update, campaign.
 
@@ -103,8 +102,8 @@ Terminology: cohort, participant, funder, check-in, funder update, campaign.
   write-up.
 - **Proof the mechanism works:** live July 2026 P&L pulled for a real company
   (Førstehjelperen AS) via the Tripletex integration.
-- `feature/miguel` branch — working full-stack portal + seed dataset covering
-  admin, funder, and participant flows.
+- Working portal on `main` — React feature pages for all three roles plus a
+  Supabase-backed `api/` layer (PR #3).
 - Notion knowledge base: "Program Labs 4 Life" (private/internal link).
 - Real stakeholder contact: Aaron @ Intuit (exploratory conversation; no
   commitment secured yet).
