@@ -4,13 +4,18 @@ A business accelerator management portal. Program staff stay in contact with par
 
 **Stack:** React + TypeScript + pure CSS (Vite) · Node serverless API (Vercel Functions) · Supabase/Postgres · deployed on Vercel.
 
+> **New here, or picking this up for the first time?** Start with
+> [`docs/handover/`](docs/handover/) instead of this file — it's the
+> requirements → setup → monthly-maintenance walkthrough written for
+> handover, with the accurate current list of what's implemented vs. not.
+
 ## Roles
 
 | Role | Sees |
 |---|---|
-| **Participant** | Own profile & cohort, check-ins from staff, surveys to complete, communication history |
-| **Administrator** | Participant records, check-in composer (individual + bulk), survey builder, response review with theme tagging, funder communications, marketing campaigns, CSV export |
-| **Funder** | Aggregate impact dashboard (KPIs + trends), cohort filters, program updates. Never sees participant-level data. |
+| **Participant** | Own editable profile (company/address/challenges details, milestones log), check-ins from staff, surveys to complete (with resubmission gated by each survey's recurrence), survey response history, communication history |
+| **Administrator** | Participant records, check-in composer (individual + bulk), survey builder + all survey responses, response review with theme tagging, funder communications, marketing campaigns, CSV export, internal knowledge base, housekeeping agent (prioritized follow-ups with a confirm-before-send email flow), Programs page management (events + KPIs) |
+| **Funder** | Aggregate impact dashboard (KPIs + trends), cohort filters, program updates, Programs page (upcoming/past events, cohort achievement stats, resource center activity). Never sees participant-level data. |
 
 ## Setup
 
@@ -42,21 +47,29 @@ For HubSpot, create a private app in HubSpot and grant these read scopes:
 
 ### 3. Apply the database schema
 
-Run the migrations in order against your Supabase project (SQL editor, `psql`, or `supabase db push`):
+Run every file in `supabase/migrations/` **in filename order** against your Supabase project (SQL editor, `psql`, or `supabase db push`):
 
 ```bash
-supabase/migrations/001_init.sql   # tables, enums, indexes
-supabase/migrations/002_rls.sql    # row-level security policies
-supabase/migrations/003_hubspot.sql # HubSpot CRM sync tables
+supabase/migrations/001_init.sql                          # tables, enums, indexes
+supabase/migrations/002_rls.sql                            # row-level security policies
+supabase/migrations/003_accounting.sql                     # accounting integration tables
+supabase/migrations/003_hubspot.sql                        # HubSpot CRM sync tables
+supabase/migrations/004_profiles_signup.sql                # self-registration profile fields
+supabase/migrations/005_knowledge_base.sql                 # admin knowledge base
+supabase/migrations/006_housekeeping.sql                   # admin housekeeping agent
+supabase/migrations/007_program_events.sql                 # funder-facing Programs page
+supabase/migrations/008_participant_profile_details.sql    # participant self-edit profile + milestones
 ```
 
-### 4. Seed sample data (local/dev only)
+(The two `003_*` files have no dependency on each other — order between them doesn't matter.)
+
+### 4. Seed data
 
 ```bash
 supabase/seed.sql
 ```
 
-Creates one admin, one funder, and 15 participants across three cohorts, plus sample check-ins, responses, surveys, metrics, funder updates, and campaign drafts.
+Creates one admin, one funder, and 15 participants across three cohorts, plus sample check-ins, responses, surveys, metrics, funder updates, campaign drafts, knowledge base articles, and program events.
 
 Seeded logins (password `Passw0rd!` for all):
 
@@ -64,7 +77,7 @@ Seeded logins (password `Passw0rd!` for all):
 - `funder@accelerator.dev` — funder
 - `amara.okafor@participant.dev` (and 14 others) — participants
 
-> The seed script inserts directly into `auth.users`, which is fine for local development but should not be run against production.
+> The seed script inserts directly into `auth.users` and is not safe to re-run — it's for local/dev only, never production. For seeding real content (knowledge base articles, program events) into a production database that already has real users, use the standalone, idempotent `supabase/production-seed-*.sql` scripts instead. Full detail in [`docs/handover/02-setup-guide.md`](docs/handover/02-setup-guide.md).
 
 ## Running locally
 
@@ -116,17 +129,29 @@ All endpoints return a consistent envelope:
 | `/api/auth/me` | GET | any signed-in user |
 | `/api/participants` | GET, POST | admin |
 | `/api/participants/[id]` | GET, PATCH, DELETE | admin (GET also participant, own record only) |
-| `/api/participants/me` | GET | participant |
+| `/api/participants/me` | GET, PATCH | participant (self only) |
+| `/api/participant-milestones` | GET, POST | admin (all, or filter by `participant_id`); participant (own only) |
+| `/api/participant-milestones/[id]` | PATCH, DELETE | owner or admin |
 | `/api/checkins` | GET, POST | admin; participant sees own only |
 | `/api/checkins/[id]/respond` | POST | participant (own check-in only) |
 | `/api/responses` | GET | admin |
 | `/api/responses/[id]/tags` | PUT | admin |
 | `/api/surveys` | GET, POST | admin; participant sees active only |
 | `/api/surveys/[id]` | GET, PATCH, DELETE | admin |
-| `/api/surveys/[id]/submissions` | GET (admin), POST (participant) | mixed |
+| `/api/surveys/[id]/submissions` | GET (admin), POST (participant, recurrence-gated — see `api/_lib/recurrence.ts`) | mixed |
+| `/api/survey-submissions` | GET | admin (all); participant (own only) |
 | `/api/metrics` | GET | admin, funder |
 | `/api/funder-updates` | GET (admin, funder), POST (admin) | mixed |
 | `/api/funder-updates/[id]` | PATCH | admin |
+| `/api/knowledge-base` | GET, POST | admin |
+| `/api/knowledge-base/[id]` | PATCH, DELETE | admin |
+| `/api/housekeeping` | GET | admin |
+| `/api/housekeeping/respond` | POST | admin |
+| `/api/housekeeping/send-email` | POST | admin (logs only — no real email provider) |
+| `/api/program-events` | GET, POST | admin (write); admin, funder (read) |
+| `/api/program-events/[id]` | PATCH, DELETE | admin |
+| `/api/program-kpis` | GET, POST | admin (write); admin, funder (read) |
+| `/api/program-kpis/[id]` | DELETE | admin |
 | `/api/campaigns` | GET, POST | admin |
 | `/api/campaigns/[id]/send` | POST | admin |
 | `/api/export/participants` | GET | admin |
