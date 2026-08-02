@@ -2,6 +2,9 @@ import type {
   AccountingConnection,
   Checkin,
   FunderUpdate,
+  HousekeepingFeed,
+  HousekeepingItem,
+  HousekeepingResponseValue,
   KnowledgeBaseArticle,
   MarketingCampaign,
   MetricSnapshot,
@@ -34,14 +37,22 @@ type MockState = {
   connections: AccountingConnection[];
   snapshots: PnLSnapshot[];
   knowledgeBase: KnowledgeBaseArticle[];
+  housekeepingResponses: MockHousekeepingResponse[];
 };
 
 export type MockResponseRow = {
   id: string;
+  participant_id: string;
   submitted_at: string;
   payload_json: Record<string, unknown>;
   response_tags: { tag: ResponseTag }[];
-  participants: { company_name: string | null; cohort: string; profiles: { name: string } } | null;
+  participants: { company_name: string | null; cohort: string; profiles: { name: string; email: string } } | null;
+};
+
+export type MockHousekeepingResponse = {
+  item_key: string;
+  response: HousekeepingResponseValue;
+  responded_at: string;
 };
 
 const MOCK_SESSION_KEY = 'pgmlabs.mock-session';
@@ -154,10 +165,19 @@ export const mockState: MockState = {
   responses: [
     {
       id: 'mock-response-1',
+      participant_id: 'mock-participant-1',
       submitted_at: '2026-07-24T14:10:00.000Z',
       payload_json: { revenue_band: '50k-100k', jobs_created: 2, challenges: 'Hiring speed' },
       response_tags: [{ tag: 'growth' }, { tag: 'hiring' }],
-      participants: { company_name: 'Northstar Health', cohort: 'Cohort A', profiles: { name: 'Amara Okafor' } },
+      participants: { company_name: 'Northstar Health', cohort: 'Cohort A', profiles: { name: 'Amara Okafor', email: 'amara.okafor@participant.dev' } },
+    },
+    {
+      id: 'mock-response-2',
+      participant_id: 'mock-participant-2',
+      submitted_at: '2026-07-28T09:30:00.000Z',
+      payload_json: { revenue_band: '0-50k', jobs_created: 0, challenges: 'Losing our largest customer next quarter — revenue at risk' },
+      response_tags: [{ tag: 'risk' }],
+      participants: { company_name: 'Blue Trail Labs', cohort: 'Cohort A', profiles: { name: 'Diego Alvarez', email: 'diego.alvarez@participant.dev' } },
     },
   ],
   funderUpdates: [
@@ -333,6 +353,7 @@ export const mockState: MockState = {
       updated_at: '2026-07-01T12:10:00.000Z',
     },
   ],
+  housekeepingResponses: [],
 };
 
 export function isMockModeEnabled(): boolean {
@@ -470,4 +491,141 @@ export function addMockParticipant(input: { name: string; email: string; cohort:
   profileByEmail.set(profile.email, profile);
   mockState.participants.unshift(participant);
   return participant;
+}
+
+const HOUSEKEEPING_SNOOZE_DAYS = 7;
+const HOUSEKEEPING_INACTIVITY_DAYS = 30;
+
+function daysAgo(iso: string): number {
+  return Math.floor((Date.now() - new Date(iso).getTime()) / (1000 * 60 * 60 * 24));
+}
+
+export function computeMockHousekeepingFeed(): HousekeepingFeed {
+  const items: HousekeepingItem[] = [];
+
+  for (const checkin of mockState.checkins) {
+    if (checkin.status !== 'overdue') continue;
+    const participant = mockState.participants.find((p) => p.id === checkin.participant_id);
+    const name = participant?.profiles?.name ?? 'This participant';
+    const label = participant?.company_name ? `${name} (${participant.company_name})` : name;
+    const dueAt = checkin.due_at ?? checkin.sent_at;
+
+    items.push({
+      item_key: `overdue_checkin:${checkin.id}`,
+      type: 'overdue_checkin',
+      priority: 'high',
+      title: `${label} — check-in overdue`,
+      description: `"${checkin.subject}" was due ${new Date(dueAt).toLocaleDateString()} and hasn't been responded to. Send a follow-up email?`,
+      emailable: Boolean(participant?.profiles?.email),
+      participant_id: checkin.participant_id,
+      participant_name: name,
+      participant_email: participant?.profiles?.email ?? null,
+      suggested_subject: `Following up: ${checkin.subject}`,
+      suggested_body: `Hi ${name},\n\nJust checking in on "${checkin.subject}" — it looks like this is still outstanding. Let us know how things are going or if there's anything blocking you.\n\nThanks,\nProgram Labs`,
+      since: dueAt,
+    });
+  }
+
+  for (const response of mockState.responses) {
+    if (!response.response_tags.some((t) => t.tag === 'risk')) continue;
+    const participant = mockState.participants.find((p) => p.id === response.participant_id);
+    const name = response.participants?.profiles?.name ?? participant?.profiles?.name ?? 'This participant';
+    const companyName = response.participants?.company_name ?? participant?.company_name ?? null;
+    const label = companyName ? `${name} (${companyName})` : name;
+    const email = response.participants?.profiles?.email ?? participant?.profiles?.email ?? null;
+    const challenge = typeof response.payload_json?.challenges === 'string' ? (response.payload_json.challenges as string) : null;
+
+    items.push({
+      item_key: `risk_response:${response.id}`,
+      type: 'risk_response',
+      priority: 'high',
+      title: `${label} — flagged a risk`,
+      description: challenge
+        ? `Flagged in their latest response: "${challenge}". Send a follow-up email to check in?`
+        : `Their latest response was tagged as a risk. Send a follow-up email to check in?`,
+      emailable: Boolean(email),
+      participant_id: response.participant_id,
+      participant_name: name,
+      participant_email: email,
+      suggested_subject: 'Checking in after your last update',
+      suggested_body: `Hi ${name},\n\nThanks for the update. We noticed you flagged a challenge and wanted to check in — is there anything the Program Labs team can help with?\n\nThanks,\nProgram Labs`,
+      since: response.submitted_at,
+    });
+  }
+
+  for (const update of mockState.funderUpdates) {
+    if (update.follow_up_status !== 'pending') continue;
+    items.push({
+      item_key: `pending_funder_followup:${update.id}`,
+      type: 'pending_funder_followup',
+      priority: 'medium',
+      title: `${update.audience} — follow-up pending`,
+      description: `Funder update "${update.title}" is awaiting follow-up. Handle it from Funder Comms, then mark this resolved.`,
+      emailable: false,
+      participant_id: null,
+      participant_name: null,
+      participant_email: null,
+      suggested_subject: null,
+      suggested_body: null,
+      since: update.sent_at,
+    });
+  }
+
+  for (const participant of mockState.participants) {
+    if (participant.status !== 'active') continue;
+    const activityDates = [
+      participant.joined_at,
+      ...mockState.checkins.filter((c) => c.participant_id === participant.id).map((c) => c.sent_at),
+      ...mockState.responses.filter((r) => r.participant_id === participant.id).map((r) => r.submitted_at),
+    ];
+    const lastActivity = activityDates.reduce((latest, iso) => (new Date(iso) > new Date(latest) ? iso : latest), activityDates[0]);
+    if (daysAgo(lastActivity) < HOUSEKEEPING_INACTIVITY_DAYS) continue;
+
+    const name = participant.profiles?.name ?? 'This participant';
+    const label = participant.company_name ? `${name} (${participant.company_name})` : name;
+
+    items.push({
+      item_key: `inactive_participant:${participant.id}`,
+      type: 'inactive_participant',
+      priority: 'low',
+      title: `${label} — gone quiet`,
+      description: `No check-in or response in the last ${daysAgo(lastActivity)} days (since ${new Date(lastActivity).toLocaleDateString()}). Send a check-in nudge?`,
+      emailable: Boolean(participant.profiles?.email),
+      participant_id: participant.id,
+      participant_name: name,
+      participant_email: participant.profiles?.email ?? null,
+      suggested_subject: 'Checking in',
+      suggested_body: `Hi ${name},\n\nIt's been a little while since we've heard from you. How are things going${participant.company_name ? ` with ${participant.company_name}` : ''}? Let us know if you need any support.\n\nThanks,\nProgram Labs`,
+      since: lastActivity,
+    });
+  }
+
+  const snoozedKeys = new Set(
+    mockState.housekeepingResponses.filter((r) => daysAgo(r.responded_at) < HOUSEKEEPING_SNOOZE_DAYS).map((r) => r.item_key),
+  );
+  const openItems = items.filter((item) => !snoozedKeys.has(item.item_key));
+
+  const priorityRank = { high: 0, medium: 1, low: 2 } as const;
+  openItems.sort((a, b) => priorityRank[a.priority] - priorityRank[b.priority] || new Date(a.since).getTime() - new Date(b.since).getTime());
+
+  return {
+    summary: {
+      overdue_checkins: openItems.filter((i) => i.type === 'overdue_checkin').length,
+      risk_responses: openItems.filter((i) => i.type === 'risk_response').length,
+      pending_funder_followups: openItems.filter((i) => i.type === 'pending_funder_followup').length,
+      inactive_participants: openItems.filter((i) => i.type === 'inactive_participant').length,
+      total_open: openItems.length,
+    },
+    items: openItems,
+  };
+}
+
+export function recordMockHousekeepingResponse(itemKey: string, response: HousekeepingResponseValue) {
+  const existing = mockState.housekeepingResponses.find((r) => r.item_key === itemKey);
+  if (existing) {
+    existing.response = response;
+    existing.responded_at = new Date().toISOString();
+  } else {
+    mockState.housekeepingResponses.push({ item_key: itemKey, response, responded_at: new Date().toISOString() });
+  }
 }

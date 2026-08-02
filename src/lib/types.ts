@@ -128,6 +128,38 @@ export type KnowledgeBaseArticle = {
   updated_at: string;
 };
 
+export type HousekeepingItemType = 'overdue_checkin' | 'risk_response' | 'pending_funder_followup' | 'inactive_participant';
+
+export type HousekeepingResponseValue = 'yes' | 'no' | 'maybe';
+
+export type HousekeepingItem = {
+  item_key: string;
+  type: HousekeepingItemType;
+  priority: 'high' | 'medium' | 'low';
+  title: string;
+  description: string;
+  emailable: boolean;
+  participant_id: string | null;
+  participant_name: string | null;
+  participant_email: string | null;
+  suggested_subject: string | null;
+  suggested_body: string | null;
+  since: string;
+};
+
+export type HousekeepingSummary = {
+  overdue_checkins: number;
+  risk_responses: number;
+  pending_funder_followups: number;
+  inactive_participants: number;
+  total_open: number;
+};
+
+export type HousekeepingFeed = {
+  summary: HousekeepingSummary;
+  items: HousekeepingItem[];
+};
+
 export type PnLSnapshot = {
   id: string;
   connection_id: string;

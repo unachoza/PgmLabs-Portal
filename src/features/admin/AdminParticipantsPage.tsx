@@ -7,6 +7,7 @@ import { DataTable, type Column } from '../../components/DataTable';
 import { StatusBadge } from '../../components/Badge';
 import { Modal } from '../../components/Modal';
 import { FormField } from '../../components/FormField';
+import { HousekeepingWidget } from './HousekeepingWidget';
 
 export function AdminParticipantsPage() {
   const { data: participants, loading, error, reload } = useApiResource<Participant[]>('/participants');
@@ -65,6 +66,7 @@ export function AdminParticipantsPage() {
   return (
     <div>
       <h1>Participants</h1>
+      <HousekeepingWidget />
       <div className="toolbar">
         <input
           type="search"
