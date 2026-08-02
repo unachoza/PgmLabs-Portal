@@ -8,15 +8,15 @@ web
 
 ## Stack
 
-React 19 + Vite + TypeScript is the authoritative go-forward frontend (the `main`
-branch), confirmed by the user. Today `main` holds only the Vite starter
-scaffold — no product logic yet.
+React 19 + Vite + TypeScript frontend, Supabase (Postgres + Auth) as the
+database, and a Vercel serverless-functions backend (Node/TypeScript). This is
+built and merged to `main` — role-based dashboards, check-ins, surveys,
+metrics, funder updates, and marketing campaigns are implemented and running,
+not just scaffolded.
 
-The `feature/miguel` branch (Node/Express + SQLite + vanilla JS, JWT auth) is a
-**functional and data-model reference**, not the go-forward frontend: it already
-implements the role dashboards, schema, and flows the React app is expected to
-deliver. The backend that will pair with the React/Vite frontend is an open
-decision (reuse Miguel's Express API vs. build new).
+The `feature/miguel` branch (Node/Express + SQLite + vanilla JS, JWT auth)
+remains on record as the original data-model reference the shipped schema was
+adapted from.
 
 ## Users
 
@@ -60,31 +60,32 @@ company via the Tripletex integration during the hackathon.
   to their books → scheduled pull normalizes each company's P&L → cohort
   dashboard + funder-ready reports. Access is explicit, read-only, and revocable.
 - Built at the Social Impact HackAIthon — San Diego (team ProgramLabs4Life).
-- Reference data model lives on `feature/miguel` (11 SQLite tables) with seed
-  data for admin, funder, and participant flows.
 
 ## Capabilities and Constraints
 
-Confirmed functionality (implemented on `feature/miguel` as reference; to be
-delivered in the React frontend):
+Confirmed functionality, shipped and running on `main`:
 
-- Role-based dashboards for admin / participant / funder.
-- JWT bearer auth, bcrypt-hashed passwords, role/least-privilege checks.
+- Role-based dashboards for admin / participant / funder (React + Vite + TS).
+- Supabase Auth + role/least-privilege checks enforced in Vercel serverless
+  functions.
 - Check-ins (admin→participant outreach) and participant responses (JSON payload).
 - Surveys: questions, submissions, answers, active/inactive state.
 - Aggregate metrics endpoint computing cohort KPIs; CSV export for reporting.
 - Funder updates and marketing campaigns; communication logs.
 - Funder endpoints are aggregate-only by design — no raw participant records.
+- HubSpot CRM integration — sync functionality for contacts/companies/deals
+  with configurable environment credentials (built by Uma).
+- Portal deployed to Vercel production.
 
 Financial integration:
 
-- Automatic P&L pull demonstrated via Tripletex integration; documented in
-  `docs/accounting-partnership-idea.md`.
+- Live QuickBooks/Tripletex P&L pull, with a **Cohort Financials** dashboard
+  view surfacing pulled data alongside the rest of the admin portal.
 - **Single-company scoping is a hard constraint:** one accounting API key reaches
   one company's books. Multi-company access model (accountant-firm setup vs.
   per-company OAuth) is undecided and must be resolved before a cohort-wide
-  dashboard is promised.
-- Backend for the React frontend is undecided (see Stack).
+  dashboard is promised. *(Status as of this writing: still open — not yet
+  confirmed resolved or unresolved by the team.)*
 
 Terminology: cohort, participant, funder, check-in, funder update, campaign.
 
@@ -99,18 +100,22 @@ Terminology: cohort, participant, funder, check-in, funder update, campaign.
 
 ## Evidence on Hand
 
+- **Portal deployed to Vercel production** — the React/Supabase/Vercel-functions
+  build described under Stack, live and running, not just a demo build.
 - `docs/accounting-partnership-idea.md` — partnership concept and proof-of-concept
   write-up.
 - **Proof the mechanism works:** live July 2026 P&L pulled for a real company
-  (Førstehjelperen AS) via the Tripletex integration.
-- `feature/miguel` branch — working full-stack portal + seed dataset covering
-  admin, funder, and participant flows.
+  (Førstehjelperen AS) via the Tripletex integration, surfaced in the portal's
+  Cohort Financials view.
+- HubSpot CRM integration — sync functionality live in the portal.
+- `feature/miguel` branch — original working prototype + seed dataset the
+  shipped schema was adapted from.
 - Notion knowledge base: "Program Labs 4 Life" (private/internal link).
 - Real stakeholder contact: Aaron @ Intuit (exploratory conversation; no
   commitment secured yet).
 - Post-hackathon maintenance commitments: Uma (2h/month) and Sergey (2h/month).
-- No public testimonials, named customers, pricing, licensing, deployment, or
-  benchmark claims exist — future work must not fabricate them.
+- No public testimonials, named customers, pricing, licensing, or benchmark
+  claims exist — future work must not fabricate them.
 
 ## Product Principles
 
