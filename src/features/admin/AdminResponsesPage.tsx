@@ -3,6 +3,7 @@ import { useApiResource } from '../../lib/useApi';
 import { api } from '../../lib/apiClient';
 import type { ResponseTag } from '../../lib/types';
 import { DataTable, type Column } from '../../components/DataTable';
+import { ResponsePayload } from '../../components/ResponsePayload';
 
 type ResponseRow = {
   id: string;
@@ -34,7 +35,7 @@ export function AdminResponsesPage() {
     { key: 'name', header: 'Participant', render: (r) => r.participants?.profiles?.name ?? '—' },
     { key: 'cohort', header: 'Cohort', render: (r) => r.participants?.cohort ?? '—' },
     { key: 'submitted_at', header: 'Submitted', render: (r) => new Date(r.submitted_at).toLocaleDateString() },
-    { key: 'payload', header: 'Response', render: (r) => <pre style={{ margin: 0, whiteSpace: 'pre-wrap' }}>{JSON.stringify(r.payload_json)}</pre> },
+    { key: 'payload', header: 'Response', render: (r) => <ResponsePayload payload={r.payload_json} /> },
     {
       key: 'tags',
       header: 'Tags',
