@@ -10,6 +10,7 @@ import {
   registerMockUser,
 } from './mockRuntime';
 import type { FunderUpdate, HousekeepingResponseValue, KnowledgeBaseArticle, ProgramEvent, ProgramKpi, ResponseTag, Survey } from './types';
+import { surveyEligibility } from './recurrence';
 
 type MockQuestionType = 'text' | 'number' | 'select' | 'multiselect' | 'boolean';
 
@@ -125,6 +126,39 @@ function handleGet(path: string) {
     const panel = query ? new URLSearchParams(query).get('panel') : null;
     const filtered = panel ? mockState.programKpis.filter((kpi) => kpi.panel === panel) : mockState.programKpis;
     return json({ success: true, data: getMockResponse(filtered), error: null });
+  }
+
+  if (path === '/survey-submissions') {
+    const profile = currentProfile();
+    let submissions = mockState.surveySubmissions;
+    if (profile?.role === 'participant') {
+      const participant = getMockParticipantForCurrentSession();
+      submissions = participant ? submissions.filter((s) => s.participant_id === participant.id) : [];
+    }
+
+    const enriched = submissions.map((s) => {
+      const survey = mockState.surveys.find((sv) => sv.id === s.survey_id);
+      const participant = mockState.participants.find((p) => p.id === s.participant_id);
+      return {
+        ...s,
+        surveys: survey ? { title: survey.title } : undefined,
+        participants: participant
+          ? { company_name: participant.company_name, cohort: participant.cohort, profiles: { name: participant.profiles?.name ?? '' } }
+          : undefined,
+        survey_answers: s.answers.map((a, i) => {
+          const question = survey?.questions?.find((q) => q.id === a.question_id);
+          return {
+            id: `${s.id}-answer-${i}`,
+            question_id: a.question_id,
+            answer_text: a.answer_text,
+            survey_questions: question ? { question_text: question.question_text, sort_order: question.sort_order } : undefined,
+          };
+        }),
+      };
+    });
+
+    enriched.sort((a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime());
+    return json({ success: true, data: getMockResponse(enriched), error: null });
   }
 
   if (path === '/accounting/connections') {
@@ -353,6 +387,47 @@ function handlePost(path: string, body: Record<string, unknown> | null) {
     const itemKey = typeof body?.item_key === 'string' ? body.item_key : null;
     if (itemKey) recordMockHousekeepingResponse(itemKey, 'yes');
     return json({ success: true, data: null, error: null }, 201);
+  }
+
+  if (path.startsWith('/surveys/') && path.endsWith('/submissions')) {
+    const surveyId = path.split('/')[2];
+    const participant = getMockParticipantForCurrentSession();
+    if (!participant) return json({ success: false, data: null, error: 'No participant profile found for this mock session.' }, 404);
+
+    const survey = mockState.surveys.find((sv) => sv.id === surveyId);
+    const lastSubmittedAt = mockState.surveySubmissions
+      .filter((s) => s.survey_id === surveyId && s.participant_id === participant.id)
+      .map((s) => s.submitted_at)
+      .sort()
+      .at(-1);
+    const eligibility = surveyEligibility(survey?.recurrence ?? 'none', lastSubmittedAt);
+    if (eligibility.status === 'locked_forever') {
+      return json(
+        { success: false, data: null, error: `You've already submitted "${survey?.title ?? 'this survey'}". Contact your program admin if you need to update your response.` },
+        409,
+      );
+    }
+    if (eligibility.status === 'locked_until') {
+      return json(
+        {
+          success: false,
+          data: null,
+          error: `You can resubmit "${survey?.title ?? 'this survey'}" again on ${new Date(eligibility.availableAt).toLocaleDateString()}. Contact your program admin if you need to update your last response sooner.`,
+        },
+        409,
+      );
+    }
+
+    const answers = Array.isArray(body?.answers) ? (body.answers as { question_id: string; answer_text: string }[]) : [];
+    const submission = {
+      id: `mock-submission-${Date.now()}`,
+      survey_id: surveyId,
+      participant_id: participant.id,
+      submitted_at: new Date().toISOString(),
+      answers,
+    };
+    mockState.surveySubmissions.push(submission);
+    return json({ success: true, data: getMockResponse(submission), error: null }, 201);
   }
 
   if (path.includes('/respond') || path.includes('/submissions') || path.endsWith('/send')) {

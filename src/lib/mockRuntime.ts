@@ -42,6 +42,15 @@ type MockState = {
   housekeepingResponses: MockHousekeepingResponse[];
   programEvents: ProgramEvent[];
   programKpis: ProgramKpi[];
+  surveySubmissions: MockSurveySubmission[];
+};
+
+export type MockSurveySubmission = {
+  id: string;
+  survey_id: string;
+  participant_id: string;
+  submitted_at: string;
+  answers: { question_id: string; answer_text: string }[];
 };
 
 export type MockResponseRow = {
@@ -77,6 +86,16 @@ const MOCK_USERS: MockUserSeed[] = [
     password: 'Passw0rd!',
     profile: { id: 'mock-participant-1-profile', name: 'Amara Okafor', email: 'amara.okafor@participant.dev', role: 'participant' },
   },
+  {
+    email: 'diego.alvarez@participant.dev',
+    password: 'Passw0rd!',
+    profile: { id: 'mock-participant-2-profile', name: 'Diego Alvarez', email: 'diego.alvarez@participant.dev', role: 'participant' },
+  },
+  {
+    email: 'priya.singh@participant.dev',
+    password: 'Passw0rd!',
+    profile: { id: 'mock-participant-3-profile', name: 'Priya Singh', email: 'priya.singh@participant.dev', role: 'participant' },
+  },
 ];
 
 const profileByEmail = new Map(MOCK_USERS.map((user) => [user.email, user.profile] as const));
@@ -102,8 +121,8 @@ function clone<T>(value: T): T {
 export const mockState: MockState = {
   participants: [
     makeParticipant('mock-participant-1', MOCK_USERS[2].profile, 'Cohort A', 'Northstar Health', 'Health', 'active'),
-    makeParticipant('mock-participant-2', { id: 'mock-participant-2-profile', name: 'Diego Alvarez', email: 'diego.alvarez@participant.dev', role: 'participant' }, 'Cohort A', 'Blue Trail Labs', 'Climate', 'active'),
-    makeParticipant('mock-participant-3', { id: 'mock-participant-3-profile', name: 'Priya Singh', email: 'priya.singh@participant.dev', role: 'participant' }, 'Cohort B', 'Solar Grid', 'Energy', 'paused'),
+    makeParticipant('mock-participant-2', MOCK_USERS[3].profile, 'Cohort A', 'Blue Trail Labs', 'Climate', 'active'),
+    makeParticipant('mock-participant-3', MOCK_USERS[4].profile, 'Cohort B', 'Solar Grid', 'Energy', 'paused'),
   ],
   checkins: [
     {
@@ -409,6 +428,18 @@ export const mockState: MockState = {
     { id: 'mock-kpi-7', panel: 'resource_center_activity', event_id: null, label: 'Unique Visitors', value: '132', period_label: 'May - Dec 2025', sort_order: 3, created_by: 'mock-admin', created_at: '2025-12-01T00:00:00.000Z' },
     { id: 'mock-kpi-8', panel: 'resource_center_activity', event_id: null, label: 'Repeat Visitors', value: '26%', period_label: 'May - Dec 2025', sort_order: 4, created_by: 'mock-admin', created_at: '2025-12-01T00:00:00.000Z' },
     { id: 'mock-kpi-9', panel: 'resource_center_activity', event_id: null, label: 'Workshops Facilitated By Alumni', value: '9', period_label: 'May - Dec 2025', sort_order: 5, created_by: 'mock-admin', created_at: '2025-12-01T00:00:00.000Z' },
+  ],
+  surveySubmissions: [
+    {
+      id: 'mock-submission-1',
+      survey_id: 'mock-survey-1',
+      participant_id: 'mock-participant-1',
+      submitted_at: '2026-07-25T10:00:00.000Z',
+      answers: [
+        { question_id: 'mock-question-1', answer_text: '3' },
+        { question_id: 'mock-question-2', answer_text: 'Hiring senior engineers fast enough' },
+      ],
+    },
   ],
 };
 
