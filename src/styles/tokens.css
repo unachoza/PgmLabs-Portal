@@ -2,7 +2,12 @@
   --color-primary: #3e5f4a;
   --color-primary-dark: #2f4a39;
   --color-secondary: #2b4353;
-  --color-accent: #d4a373;
+  /* Cobalt — the one confident interactive color (buttons, focus, active
+     states). Chosen over a green accent because it contrasts against
+     --color-primary instead of competing with it, and it reads as a
+     saturated cousin of --color-secondary rather than an unrelated hue. */
+  --color-accent: #2b4fd6;
+  --color-accent-dark: #23409e;
   --color-bg-main: #fafafa;
   --color-bg-surface: #f4f1ea;
   --color-border: #e2ded5;
@@ -10,7 +15,8 @@
   --color-text-muted: #5e6368;
   --color-danger: #b3492e;
   --color-success: #3e5f4a;
-  --color-warning: #b8853f;
+  /* Darkened from #b8853f (2.9:1) to clear WCAG AA 4.5:1 as badge text/border. */
+  --color-warning: #654923;
   --font-stack: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
   --space-1: 4px;

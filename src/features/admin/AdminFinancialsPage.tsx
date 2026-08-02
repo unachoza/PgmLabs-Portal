@@ -163,16 +163,18 @@ export function AdminFinancialsPage() {
       {latest.length > 0 && (
         <div className="card-grid" style={{ marginBottom: 'var(--space-5)' }}>
           <KpiCard
+            verified
             title="Total revenue"
             value={money(totalRevenue, currency)}
             hint={sameCurrency ? 'Latest period, all connected companies' : 'Mixed currencies — see per-company table'}
           />
           <KpiCard
+            verified
             title="Total net result"
             value={money(totalNet, currency)}
             hint={sameCurrency ? 'Sum of latest net results' : 'Mixed currencies'}
           />
-          <KpiCard title="Companies burning cash" value={String(burningCash)} hint={`of ${latest.length} connected`} />
+          <KpiCard verified title="Companies burning cash" value={String(burningCash)} hint={`of ${latest.length} connected`} />
         </div>
       )}
 
