@@ -204,3 +204,41 @@ What comes next?$c$,
     admin_id
   );
 end $$;
+
+-- Program events + KPIs seed: real figures from the SDCCE Business Resource
+-- Center & Accelerator deck (inaugural cohort). Graduation date is
+-- approximate (the deck doesn't give an exact day) — update via the admin
+-- Programs page once the real date is confirmed. No upcoming events are
+-- seeded since the deck doesn't list any specific ones.
+do $$
+declare
+  admin_id uuid := 'a0000000-0000-0000-0000-000000000001';
+  cohort10_event_id uuid;
+begin
+  insert into program_events (title, description, event_type, event_date, cohort, location, created_by)
+  values (
+    'Cohort 10 Graduation',
+    'Inaugural SDCCE Accelerator cohort graduation — 10 companies completed the free 4-month program covering sales, finance, marketing, and business model, with small-group mentoring and weekly check-ins.',
+    'past',
+    '2025-11-20',
+    'Cohort 10',
+    'Barrio Logan, San Diego',
+    admin_id
+  )
+  returning id into cohort10_event_id;
+
+  insert into program_kpis (panel, event_id, label, value, sort_order, created_by)
+  values
+    ('cohort_achievements', cohort10_event_id, 'Cohort Companies', '10', 1, admin_id),
+    ('cohort_achievements', cohort10_event_id, 'Hours of 1-on-1 Coaching', '82', 2, admin_id),
+    ('cohort_achievements', cohort10_event_id, 'Increased Revenue During Program', '30%', 3, admin_id),
+    ('cohort_achievements', cohort10_event_id, 'Founders Reported Increase in Confidence', '100%', 4, admin_id);
+
+  insert into program_kpis (panel, event_id, label, value, period_label, sort_order, created_by)
+  values
+    ('resource_center_activity', null, 'Technical Assistance Sessions', '61', 'May - Dec 2025', 1, admin_id),
+    ('resource_center_activity', null, 'Community Workshops', '11', 'May - Dec 2025', 2, admin_id),
+    ('resource_center_activity', null, 'Unique Visitors', '132', 'May - Dec 2025', 3, admin_id),
+    ('resource_center_activity', null, 'Repeat Visitors', '26%', 'May - Dec 2025', 4, admin_id),
+    ('resource_center_activity', null, 'Workshops Facilitated By Alumni', '9', 'May - Dec 2025', 5, admin_id);
+end $$;

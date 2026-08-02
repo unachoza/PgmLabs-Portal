@@ -18,10 +18,12 @@ const NAV_BY_ROLE = {
     { to: '/funder-updates', label: 'Funder Comms' },
     { to: '/campaigns', label: 'Marketing' },
     { to: '/knowledge-base', label: 'Knowledge Base' },
+    { to: '/programs', label: 'Programs' },
   ],
   funder: [
     { to: '/', label: 'Dashboard', end: true },
     { to: '/updates', label: 'Program Updates' },
+    { to: '/programs', label: 'Programs' },
   ],
 } as const;
 

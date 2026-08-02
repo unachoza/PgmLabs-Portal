@@ -16,8 +16,10 @@ import { AdminFinancialsPage } from './features/admin/AdminFinancialsPage';
 import { AdminFunderUpdatesPage } from './features/admin/AdminFunderUpdatesPage';
 import { AdminCampaignsPage } from './features/admin/AdminCampaignsPage';
 import { AdminKnowledgeBasePage } from './features/admin/AdminKnowledgeBasePage';
+import { AdminProgramsPage } from './features/admin/AdminProgramsPage';
 import { FunderDashboardPage } from './features/funder/FunderDashboardPage';
 import { FunderUpdatesPage } from './features/funder/FunderUpdatesPage';
+import { FunderProgramsPage } from './features/funder/FunderProgramsPage';
 
 // The three roles share the same nav paths ("/", "/checkins", "/surveys")
 // but render different pages. These small routers pick the right one.
@@ -36,6 +38,11 @@ function CheckinsRoute() {
 function SurveysRoute() {
   const { profile } = useAuth();
   return profile?.role === 'admin' ? <AdminSurveysPage /> : <ParticipantSurveysPage />;
+}
+
+function ProgramsRoute() {
+  const { profile } = useAuth();
+  return profile?.role === 'admin' ? <AdminProgramsPage /> : <FunderProgramsPage />;
 }
 
 export default function App() {
@@ -60,6 +67,7 @@ export default function App() {
         <Route path="/funder-updates" element={<AdminFunderUpdatesPage />} />
         <Route path="/campaigns" element={<AdminCampaignsPage />} />
         <Route path="/knowledge-base" element={<AdminKnowledgeBasePage />} />
+        <Route path="/programs" element={<ProgramsRoute />} />
         <Route path="/updates" element={<FunderUpdatesPage />} />
       </Route>
     </Routes>

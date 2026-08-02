@@ -160,6 +160,36 @@ export type HousekeepingFeed = {
   items: HousekeepingItem[];
 };
 
+export type ProgramEventType = 'upcoming' | 'past';
+
+export type ProgramKpiPanel = 'cohort_achievements' | 'resource_center_activity';
+
+export type ProgramKpi = {
+  id: string;
+  panel: ProgramKpiPanel;
+  event_id: string | null;
+  label: string;
+  value: string;
+  period_label: string | null;
+  sort_order: number;
+  created_by: string;
+  created_at: string;
+};
+
+export type ProgramEvent = {
+  id: string;
+  title: string;
+  description: string | null;
+  event_type: ProgramEventType;
+  event_date: string;
+  cohort: string | null;
+  location: string | null;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  kpis?: ProgramKpi[];
+};
+
 export type PnLSnapshot = {
   id: string;
   connection_id: string;
