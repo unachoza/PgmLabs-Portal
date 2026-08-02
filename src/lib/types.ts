@@ -62,6 +62,23 @@ export type SurveyQuestion = {
   sort_order: number;
 };
 
+export type SurveyAnswer = {
+  id: string;
+  question_id: string;
+  answer_text: string;
+  survey_questions?: { question_text: string; sort_order: number };
+};
+
+export type SurveySubmission = {
+  id: string;
+  survey_id: string;
+  participant_id: string;
+  submitted_at: string;
+  surveys?: { title: string };
+  participants?: { company_name: string | null; cohort: string; profiles: { name: string } };
+  survey_answers?: SurveyAnswer[];
+};
+
 export type FunderUpdate = {
   id: string;
   title: string;

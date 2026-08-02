@@ -7,6 +7,7 @@ const NAV_BY_ROLE = {
     { to: '/', label: 'My Profile', end: true },
     { to: '/checkins', label: 'Check-ins' },
     { to: '/surveys', label: 'Surveys' },
+    { to: '/survey-responses', label: 'Survey Responses' },
     { to: '/history', label: 'Communication History' },
   ],
   admin: [

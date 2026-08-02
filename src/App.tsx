@@ -8,6 +8,7 @@ import { ParticipantProfilePage } from './features/participant/ParticipantProfil
 import { ParticipantCheckinsPage } from './features/participant/ParticipantCheckinsPage';
 import { ParticipantSurveysPage } from './features/participant/ParticipantSurveysPage';
 import { ParticipantHistoryPage } from './features/participant/ParticipantHistoryPage';
+import { ParticipantSurveyResponsesPage } from './features/participant/ParticipantSurveyResponsesPage';
 import { AdminParticipantsPage } from './features/admin/AdminParticipantsPage';
 import { AdminCheckinsPage } from './features/admin/AdminCheckinsPage';
 import { AdminSurveysPage } from './features/admin/AdminSurveysPage';
@@ -62,6 +63,7 @@ export default function App() {
         <Route path="/checkins" element={<CheckinsRoute />} />
         <Route path="/surveys" element={<SurveysRoute />} />
         <Route path="/history" element={<ParticipantHistoryPage />} />
+        <Route path="/survey-responses" element={<ParticipantSurveyResponsesPage />} />
         <Route path="/responses" element={<AdminResponsesPage />} />
         <Route path="/financials" element={<AdminFinancialsPage />} />
         <Route path="/funder-updates" element={<AdminFunderUpdatesPage />} />

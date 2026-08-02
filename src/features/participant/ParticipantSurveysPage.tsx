@@ -1,18 +1,27 @@
 import { useState } from 'react';
 import { useApiResource } from '../../lib/useApi';
 import { api } from '../../lib/apiClient';
-import type { Survey } from '../../lib/types';
+import type { Survey, SurveySubmission } from '../../lib/types';
+import { surveyEligibility } from '../../lib/recurrence';
 import { Modal } from '../../components/Modal';
 import { FormField } from '../../components/FormField';
 
 export function ParticipantSurveysPage() {
   const { data: surveys, loading, error } = useApiResource<Survey[]>('/surveys');
+  const { data: submissions, reload: reloadSubmissions } = useApiResource<SurveySubmission[]>('/survey-submissions');
   const [activeId, setActiveId] = useState<string | null>(null);
   const [survey, setSurvey] = useState<Survey | null>(null);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [done, setDone] = useState<Set<string>>(new Set());
+
+  function lastSubmissionFor(surveyId: string) {
+    return (submissions ?? [])
+      .filter((s) => s.survey_id === surveyId)
+      .map((s) => s.submitted_at)
+      .sort()
+      .at(-1);
+  }
 
   async function open(id: string) {
     setActiveId(id);
@@ -31,7 +40,7 @@ export function ParticipantSurveysPage() {
         answers: (survey.questions ?? []).map((q) => ({ question_id: q.id, answer_text: answers[q.id] ?? '' })),
       };
       await api.post(`/surveys/${survey.id}/submissions`, payload);
-      setDone((prev) => new Set(prev).add(survey.id));
+      await reloadSubmissions();
       setActiveId(null);
       setSurvey(null);
     } catch (err) {
@@ -49,15 +58,27 @@ export function ParticipantSurveysPage() {
       <h1>Surveys</h1>
       {(surveys ?? []).length === 0 && <div className="empty-state">No open surveys right now.</div>}
       <div className="card-grid">
-        {(surveys ?? []).map((s) => (
-          <div className="card" key={s.id}>
-            <h3>{s.title}</h3>
-            <p className="form-hint">{s.description}</p>
-            <button className="btn btn-sm" onClick={() => open(s.id)} disabled={done.has(s.id)}>
-              {done.has(s.id) ? 'Completed' : 'Fill out'}
-            </button>
-          </div>
-        ))}
+        {(surveys ?? []).map((s) => {
+          const eligibility = surveyEligibility(s.recurrence, lastSubmissionFor(s.id));
+          return (
+            <div className="card" key={s.id}>
+              <h3>{s.title}</h3>
+              <p className="form-hint">{s.description}</p>
+              <button className="btn btn-sm" onClick={() => open(s.id)} disabled={eligibility.status !== 'open'}>
+                {eligibility.status === 'open' ? 'Fill out' : 'Completed'}
+              </button>
+              {eligibility.status === 'locked_forever' && (
+                <p className="form-hint">Need to change your answer? Contact your program admin.</p>
+              )}
+              {eligibility.status === 'locked_until' && (
+                <p className="form-hint">
+                  You can fill this out again on {new Date(eligibility.availableAt).toLocaleDateString()}. Need to update your last
+                  answer sooner? Contact your program admin.
+                </p>
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {activeId && survey && (

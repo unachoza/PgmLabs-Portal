@@ -1,12 +1,60 @@
 import { useState } from 'react';
 import { useApiResource } from '../../lib/useApi';
 import { api } from '../../lib/apiClient';
-import type { Survey, SurveyQuestion } from '../../lib/types';
+import type { Survey, SurveyQuestion, SurveySubmission } from '../../lib/types';
+import { DataTable, type Column } from '../../components/DataTable';
 import { Modal } from '../../components/Modal';
 import { FormField } from '../../components/FormField';
 import { StatusBadge } from '../../components/Badge';
 
 type DraftQuestion = Pick<SurveyQuestion, 'question_text' | 'question_type' | 'required'>;
+
+function SurveyResponses() {
+  const { data: submissions, loading, error } = useApiResource<SurveySubmission[]>('/survey-submissions');
+  const [viewing, setViewing] = useState<SurveySubmission | null>(null);
+
+  if (loading) return <div className="page-loading">Loading survey responses…</div>;
+  if (error) return <div className="banner-error">{error}</div>;
+
+  const columns: Column<SurveySubmission>[] = [
+    { key: 'name', header: 'Participant', render: (s) => s.participants?.profiles?.name ?? '—' },
+    { key: 'company', header: 'Company', render: (s) => s.participants?.company_name ?? '—' },
+    { key: 'survey', header: 'Survey', render: (s) => s.surveys?.title ?? '—' },
+    { key: 'submitted_at', header: 'Submitted', render: (s) => new Date(s.submitted_at).toLocaleDateString() },
+    {
+      key: 'action',
+      header: '',
+      render: (s) => (
+        <button className="btn btn-secondary btn-sm" onClick={() => setViewing(s)}>
+          View answers
+        </button>
+      ),
+    },
+  ];
+
+  return (
+    <div>
+      <h2>Survey Responses</h2>
+      <DataTable columns={columns} rows={submissions ?? []} emptyMessage="No survey responses yet." />
+
+      {viewing && (
+        <Modal title={`${viewing.surveys?.title ?? 'Survey'} — ${viewing.participants?.profiles?.name ?? 'Participant'}`} onClose={() => setViewing(null)}>
+          <p className="form-hint">Submitted {new Date(viewing.submitted_at).toLocaleString()}</p>
+          <ul style={{ paddingLeft: 'var(--space-4)' }}>
+            {(viewing.survey_answers ?? [])
+              .slice()
+              .sort((a, b) => (a.survey_questions?.sort_order ?? 0) - (b.survey_questions?.sort_order ?? 0))
+              .map((a) => (
+                <li key={a.id} style={{ marginBottom: 'var(--space-2)' }}>
+                  <strong>{a.survey_questions?.question_text ?? 'Question'}:</strong> {a.answer_text || '—'}
+                </li>
+              ))}
+          </ul>
+        </Modal>
+      )}
+    </div>
+  );
+}
 
 export function AdminSurveysPage() {
   const { data: surveys, loading, error, reload } = useApiResource<Survey[]>('/surveys');
@@ -89,6 +137,8 @@ export function AdminSurveysPage() {
           </div>
         ))}
       </div>
+
+      <SurveyResponses />
 
       {showCreate && (
         <Modal title="Build survey" onClose={() => setShowCreate(false)}>
