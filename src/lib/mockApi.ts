@@ -141,9 +141,7 @@ function handlePost(path: string, body: Record<string, unknown> | null) {
   if (path === '/auth/signup') {
     try {
       const profile = registerMockUser({
-        first_name: String(body?.first_name ?? ''),
-        last_name: String(body?.last_name ?? ''),
-        phone: String(body?.phone ?? ''),
+        name: String(body?.name ?? ''),
         email: String(body?.email ?? ''),
         password: String(body?.password ?? ''),
         role: (body?.role as 'participant' | 'funder') ?? 'participant',
@@ -181,13 +179,13 @@ function handlePost(path: string, body: Record<string, unknown> | null) {
     const surveyId = `mock-survey-${Date.now()}`;
     const questions = Array.isArray(body?.questions)
       ? (body.questions as Array<Record<string, unknown>>).map((question, index) => ({
-          id: `mock-question-${Date.now()}-${index}`,
-          survey_id: surveyId,
-          question_text: String(question.question_text ?? ''),
-          question_type: (question.question_type as MockQuestionType) ?? 'text',
-          required: Boolean(question.required),
-          sort_order: Number(question.sort_order ?? index),
-        }))
+        id: `mock-question-${Date.now()}-${index}`,
+        survey_id: surveyId,
+        question_text: String(question.question_text ?? ''),
+        question_type: (question.question_type as MockQuestionType) ?? 'text',
+        required: Boolean(question.required),
+        sort_order: Number(question.sort_order ?? index),
+      }))
       : [];
 
     const survey: Survey = {

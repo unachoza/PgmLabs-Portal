@@ -344,9 +344,7 @@ export async function mockSignOut() {
 }
 
 export function registerMockUser(input: {
-  first_name: string;
-  last_name: string;
-  phone: string;
+  name: string;
   email: string;
   password: string;
   role: 'participant' | 'funder';
@@ -358,10 +356,7 @@ export function registerMockUser(input: {
 
   const profile: Profile = {
     id: `mock-profile-${Date.now()}`,
-    name: `${input.first_name} ${input.last_name}`.trim(),
-    first_name: input.first_name,
-    last_name: input.last_name,
-    phone: input.phone,
+    name: input.name,
     email: input.email,
     role: input.role,
   };

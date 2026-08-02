@@ -11,7 +11,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { data: profile, error } = await supabaseAdmin
     .from('profiles')
-    .select('id, name, first_name, last_name, phone, email, role')
+    .select('id, name, email, role')
     .eq('id', caller.userId)
     .single();
 

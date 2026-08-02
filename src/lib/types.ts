@@ -3,9 +3,6 @@ export type UserRole = 'participant' | 'admin' | 'funder';
 export type Profile = {
   id: string;
   name: string;
-  first_name?: string | null;
-  last_name?: string | null;
-  phone?: string | null;
   email: string;
   role: UserRole;
 };
