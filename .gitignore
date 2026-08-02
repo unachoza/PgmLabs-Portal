@@ -33,3 +33,9 @@ dist-ssr
 
 .claude/*
 !.claude/skills/
+
+# Supabase CLI scratch
+supabase/.temp/
+
+# Alex's brand assets — his to distribute, not ours to commit
+docs/The_Program_Labs_Style_Guide.pdf
