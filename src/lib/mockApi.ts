@@ -1,4 +1,4 @@
-import { addMockParticipant, getMockParticipantForCurrentSession, getMockProfileForCurrentSession, getMockResponse, isMockModeEnabled, mockState } from './mockRuntime';
+import { addMockParticipant, getMockParticipantForCurrentSession, getMockProfileForCurrentSession, getMockResponse, isMockModeEnabled, mockState, registerMockUser } from './mockRuntime';
 import type { FunderUpdate, ResponseTag, Survey } from './types';
 
 type MockQuestionType = 'text' | 'number' | 'select' | 'multiselect' | 'boolean';
@@ -136,6 +136,23 @@ function handlePost(path: string, body: Record<string, unknown> | null) {
       industry: String(body?.industry ?? ''),
     });
     return json({ success: true, data: getMockResponse(participant), error: null });
+  }
+
+  if (path === '/auth/signup') {
+    try {
+      const profile = registerMockUser({
+        first_name: String(body?.first_name ?? ''),
+        last_name: String(body?.last_name ?? ''),
+        phone: String(body?.phone ?? ''),
+        email: String(body?.email ?? ''),
+        password: String(body?.password ?? ''),
+        role: (body?.role as 'participant' | 'funder') ?? 'participant',
+        cohort: typeof body?.cohort === 'string' ? body.cohort : undefined,
+      });
+      return json({ success: true, data: getMockResponse({ id: profile.id, email: profile.email, role: profile.role }), error: null });
+    } catch (error) {
+      return json({ success: false, data: null, error: error instanceof Error ? error.message : 'Unable to create account.' }, 400);
+    }
   }
 
   if (path === '/checkins') {

@@ -15,7 +15,15 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     },
   });
 
-  const json = (await res.json()) as Envelope<T>;
+  const raw = await res.text();
+  let json: Envelope<T>;
+
+  try {
+    json = raw ? (JSON.parse(raw) as Envelope<T>) : { success: false, data: null, error: `Empty response from ${path}.` };
+  } catch {
+    throw new Error(raw ? `Unexpected response from ${path}: ${raw.slice(0, 200)}` : `Empty response from ${path}.`);
+  }
+
   if (!res.ok || !json.success) {
     throw new Error(json.error ?? `Request failed with status ${res.status}`);
   }

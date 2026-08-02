@@ -272,7 +272,7 @@ export const mockState: MockState = {
 };
 
 export function isMockModeEnabled(): boolean {
-  return import.meta.env.VITE_AUTH_MODE === 'mock';
+  return import.meta.env.DEV && import.meta.env.VITE_AUTH_MODE !== 'real';
 }
 
 export function getMockProfileByEmail(email: string): Profile | null {
@@ -341,6 +341,48 @@ export async function mockSignOut() {
   setStoredMockSession(null);
   emitMockSession('SIGNED_OUT', null);
   return { error: null };
+}
+
+export function registerMockUser(input: {
+  first_name: string;
+  last_name: string;
+  phone: string;
+  email: string;
+  password: string;
+  role: 'participant' | 'funder';
+  cohort?: string;
+}) {
+  if (profileByEmail.has(input.email)) {
+    throw new Error('A user with this email already exists.');
+  }
+
+  const profile: Profile = {
+    id: `mock-profile-${Date.now()}`,
+    name: `${input.first_name} ${input.last_name}`.trim(),
+    first_name: input.first_name,
+    last_name: input.last_name,
+    phone: input.phone,
+    email: input.email,
+    role: input.role,
+  };
+
+  MOCK_USERS.push({ email: input.email, password: input.password, profile });
+  profileByEmail.set(profile.email, profile);
+
+  if (input.role === 'participant') {
+    mockState.participants.unshift({
+      id: `mock-participant-${Date.now()}`,
+      profile_id: profile.id,
+      cohort: input.cohort ?? 'Unassigned',
+      company_name: null,
+      industry: null,
+      joined_at: new Date().toISOString(),
+      status: 'active',
+      profiles: { name: profile.name, email: profile.email },
+    });
+  }
+
+  return profile;
 }
 
 export function getMockResponse<T>(value: T) {
