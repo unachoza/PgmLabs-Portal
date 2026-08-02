@@ -208,8 +208,10 @@ end $$;
 -- Program events + KPIs seed: real figures from the SDCCE Business Resource
 -- Center & Accelerator deck (inaugural cohort). Graduation date is
 -- approximate (the deck doesn't give an exact day) — update via the admin
--- Programs page once the real date is confirmed. No upcoming events are
--- seeded since the deck doesn't list any specific ones.
+-- Programs page once the real date is confirmed. The two "upcoming" events
+-- below are sample/placeholder data (not from the deck) so the Upcoming
+-- Events section isn't empty — replace or edit them via the admin Programs
+-- page with real dates once scheduled.
 do $$
 declare
   admin_id uuid := 'a0000000-0000-0000-0000-000000000001';
@@ -226,6 +228,27 @@ begin
     admin_id
   )
   returning id into cohort10_event_id;
+
+  insert into program_events (title, description, event_type, event_date, cohort, location, created_by)
+  values
+    (
+      'Cohort 11 Info Session',
+      'Sample placeholder — replace with the real date. Applications open for the next free 4-month Accelerator cohort; info session covers eligibility, timeline, and what the program includes.',
+      'upcoming',
+      '2026-09-10',
+      'Cohort 11',
+      'Barrio Logan, San Diego',
+      admin_id
+    ),
+    (
+      'Quarterly Alumni Mixer',
+      'Sample placeholder — replace with the real date. Networking mixer for Accelerator alumni, part of the Alumni Network''s quarterly cadence.',
+      'upcoming',
+      '2026-10-15',
+      null,
+      'Barrio Logan, San Diego',
+      admin_id
+    );
 
   insert into program_kpis (panel, event_id, label, value, sort_order, created_by)
   values
