@@ -32,7 +32,7 @@ export function TrendChart({
               y={y}
               width={barWidth}
               height={barHeight}
-              fill="var(--color-primary)"
+              fill="var(--color-accent)"
               rx={3}
             />
             <text
