@@ -15,6 +15,7 @@ import { AdminResponsesPage } from './features/admin/AdminResponsesPage';
 import { AdminFinancialsPage } from './features/admin/AdminFinancialsPage';
 import { AdminFunderUpdatesPage } from './features/admin/AdminFunderUpdatesPage';
 import { AdminCampaignsPage } from './features/admin/AdminCampaignsPage';
+import { AdminKnowledgeBasePage } from './features/admin/AdminKnowledgeBasePage';
 import { FunderDashboardPage } from './features/funder/FunderDashboardPage';
 import { FunderUpdatesPage } from './features/funder/FunderUpdatesPage';
 
@@ -58,6 +59,7 @@ export default function App() {
         <Route path="/financials" element={<AdminFinancialsPage />} />
         <Route path="/funder-updates" element={<AdminFunderUpdatesPage />} />
         <Route path="/campaigns" element={<AdminCampaignsPage />} />
+        <Route path="/knowledge-base" element={<AdminKnowledgeBasePage />} />
         <Route path="/updates" element={<FunderUpdatesPage />} />
       </Route>
     </Routes>

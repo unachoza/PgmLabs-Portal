@@ -17,6 +17,7 @@ const NAV_BY_ROLE = {
     { to: '/financials', label: 'Cohort Financials' },
     { to: '/funder-updates', label: 'Funder Comms' },
     { to: '/campaigns', label: 'Marketing' },
+    { to: '/knowledge-base', label: 'Knowledge Base' },
   ],
   funder: [
     { to: '/', label: 'Dashboard', end: true },

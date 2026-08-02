@@ -1,5 +1,5 @@
 import { addMockParticipant, getMockParticipantForCurrentSession, getMockProfileForCurrentSession, getMockResponse, isMockModeEnabled, mockState, registerMockUser } from './mockRuntime';
-import type { FunderUpdate, ResponseTag, Survey } from './types';
+import type { FunderUpdate, KnowledgeBaseArticle, ResponseTag, Survey } from './types';
 
 type MockQuestionType = 'text' | 'number' | 'select' | 'multiselect' | 'boolean';
 
@@ -92,6 +92,10 @@ function handleGet(path: string) {
 
   if (path === '/campaigns') {
     return json({ success: true, data: getMockResponse(mockState.campaigns), error: null });
+  }
+
+  if (path === '/knowledge-base') {
+    return json({ success: true, data: getMockResponse(mockState.knowledgeBase), error: null });
   }
 
   if (path === '/accounting/connections') {
@@ -230,6 +234,23 @@ function handlePost(path: string, body: Record<string, unknown> | null) {
     return json({ success: true, data: getMockResponse(campaign), error: null });
   }
 
+  if (path === '/knowledge-base') {
+    const now = new Date().toISOString();
+    const article: KnowledgeBaseArticle = {
+      id: `mock-kb-${Date.now()}`,
+      category: String(body?.category ?? ''),
+      title: String(body?.title ?? ''),
+      content: typeof body?.content === 'string' ? body.content : null,
+      links: Array.isArray(body?.links) ? (body.links as KnowledgeBaseArticle['links']) : [],
+      created_by: currentProfile()?.id ?? 'mock-admin',
+      updated_by: null,
+      created_at: now,
+      updated_at: now,
+    };
+    mockState.knowledgeBase.push(article);
+    return json({ success: true, data: getMockResponse(article), error: null });
+  }
+
   if (path === '/accounting/connections') {
     const profileOrResponse = requireProfile(path);
     if (profileOrResponse instanceof Response) return profileOrResponse;
@@ -282,6 +303,19 @@ function handlePatch(path: string, body: Record<string, unknown> | null) {
     return json({ success: true, data: getMockResponse(survey), error: null });
   }
 
+  if (path.startsWith('/knowledge-base/')) {
+    const id = path.split('/')[2];
+    const article = mockState.knowledgeBase.find((item) => item.id === id);
+    if (!article) return notFound(path);
+    if (typeof body?.category === 'string') article.category = body.category;
+    if (typeof body?.title === 'string') article.title = body.title;
+    if (typeof body?.content === 'string') article.content = body.content;
+    if (Array.isArray(body?.links)) article.links = body.links as typeof article.links;
+    article.updated_by = currentProfile()?.id ?? 'mock-admin';
+    article.updated_at = new Date().toISOString();
+    return json({ success: true, data: getMockResponse(article), error: null });
+  }
+
   return notFound(path);
 }
 
@@ -308,6 +342,12 @@ function handleDelete(path: string) {
   if (path.startsWith('/participants/')) {
     const id = path.split('/')[2];
     mockState.participants = mockState.participants.filter((participant) => participant.id !== id);
+    return json({ success: true, data: null, error: null });
+  }
+
+  if (path.startsWith('/knowledge-base/')) {
+    const id = path.split('/')[2];
+    mockState.knowledgeBase = mockState.knowledgeBase.filter((article) => article.id !== id);
     return json({ success: true, data: null, error: null });
   }
 
