@@ -372,6 +372,32 @@ export const mockState: MockState = {
       created_at: '2025-11-20T00:00:00.000Z',
       updated_at: '2025-11-20T00:00:00.000Z',
     },
+    {
+      id: 'mock-event-2',
+      title: 'Cohort 11 Info Session',
+      description:
+        'Sample placeholder — replace with the real date. Applications open for the next free 4-month Accelerator cohort; info session covers eligibility, timeline, and what the program includes.',
+      event_type: 'upcoming',
+      event_date: '2026-09-10',
+      cohort: 'Cohort 11',
+      location: 'Barrio Logan, San Diego',
+      created_by: 'mock-admin',
+      created_at: '2026-08-01T00:00:00.000Z',
+      updated_at: '2026-08-01T00:00:00.000Z',
+    },
+    {
+      id: 'mock-event-3',
+      title: 'Quarterly Alumni Mixer',
+      description:
+        "Sample placeholder — replace with the real date. Networking mixer for Accelerator alumni, part of the Alumni Network's quarterly cadence.",
+      event_type: 'upcoming',
+      event_date: '2026-10-15',
+      cohort: null,
+      location: 'Barrio Logan, San Diego',
+      created_by: 'mock-admin',
+      created_at: '2026-08-01T00:00:00.000Z',
+      updated_at: '2026-08-01T00:00:00.000Z',
+    },
   ],
   programKpis: [
     { id: 'mock-kpi-1', panel: 'cohort_achievements', event_id: 'mock-event-1', label: 'Cohort Companies', value: '10', period_label: null, sort_order: 1, created_by: 'mock-admin', created_at: '2025-11-20T00:00:00.000Z' },
