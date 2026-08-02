@@ -15,7 +15,24 @@ export type Participant = {
   industry: string | null;
   joined_at: string;
   status: 'active' | 'graduated' | 'paused' | 'withdrawn';
+  address_line1: string | null;
+  city: string | null;
+  state: string | null;
+  zip_code: string | null;
+  company_website: string | null;
+  company_description: string | null;
+  current_challenges: string | null;
   profiles?: { name: string; email: string };
+};
+
+export type ParticipantMilestone = {
+  id: string;
+  participant_id: string;
+  title: string;
+  description: string | null;
+  achieved_on: string | null;
+  created_at: string;
+  updated_at: string;
 };
 
 export type CheckinStatus = 'sent' | 'responded' | 'overdue';

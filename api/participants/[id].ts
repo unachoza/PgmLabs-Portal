@@ -10,6 +10,13 @@ const updateSchema = z.object({
   company_name: z.string().nullable().optional(),
   industry: z.string().nullable().optional(),
   status: z.enum(['active', 'graduated', 'paused', 'withdrawn']).optional(),
+  address_line1: z.string().nullable().optional(),
+  city: z.string().nullable().optional(),
+  state: z.string().nullable().optional(),
+  zip_code: z.string().nullable().optional(),
+  company_website: z.string().nullable().optional(),
+  company_description: z.string().nullable().optional(),
+  current_challenges: z.string().nullable().optional(),
 });
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -22,7 +29,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     const { data, error } = await supabaseAdmin
       .from('participants')
-      .select('id, profile_id, cohort, company_name, industry, joined_at, status, profiles(name, email)')
+      .select('id, profile_id, cohort, company_name, industry, joined_at, status, address_line1, city, state, zip_code, company_website, company_description, current_challenges, profiles(name, email)')
       .eq('id', id)
       .single();
     if (error || !data) return fail(res, 404, 'Participant not found.');

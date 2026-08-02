@@ -9,6 +9,7 @@ import type {
   MarketingCampaign,
   MetricSnapshot,
   Participant,
+  ParticipantMilestone,
   ProgramEvent,
   ProgramKpi,
   Profile,
@@ -43,6 +44,7 @@ type MockState = {
   programEvents: ProgramEvent[];
   programKpis: ProgramKpi[];
   surveySubmissions: MockSurveySubmission[];
+  participantMilestones: ParticipantMilestone[];
 };
 
 export type MockSurveySubmission = {
@@ -110,6 +112,13 @@ function makeParticipant(id: string, profile: Profile, cohort: string, company_n
     industry,
     joined_at: '2026-06-01T00:00:00.000Z',
     status,
+    address_line1: null,
+    city: null,
+    state: null,
+    zip_code: null,
+    company_website: null,
+    company_description: null,
+    current_challenges: null,
     profiles: { name: profile.name, email: profile.email },
   };
 }
@@ -441,6 +450,17 @@ export const mockState: MockState = {
       ],
     },
   ],
+  participantMilestones: [
+    {
+      id: 'mock-milestone-1',
+      participant_id: 'mock-participant-1',
+      title: 'First paying customer',
+      description: 'Closed our first annual contract with a regional clinic network.',
+      achieved_on: '2026-06-15',
+      created_at: '2026-06-16T09:00:00.000Z',
+      updated_at: '2026-06-16T09:00:00.000Z',
+    },
+  ],
 };
 
 export function isMockModeEnabled(): boolean {
@@ -545,6 +565,13 @@ export function registerMockUser(input: {
       industry: null,
       joined_at: new Date().toISOString(),
       status: 'active',
+      address_line1: null,
+      city: null,
+      state: null,
+      zip_code: null,
+      company_website: null,
+      company_description: null,
+      current_challenges: null,
       profiles: { name: profile.name, email: profile.email },
     });
   }
@@ -571,6 +598,13 @@ export function addMockParticipant(input: { name: string; email: string; cohort:
     industry: input.industry || null,
     joined_at: new Date().toISOString(),
     status: 'active',
+    address_line1: null,
+    city: null,
+    state: null,
+    zip_code: null,
+    company_website: null,
+    company_description: null,
+    current_challenges: null,
     profiles: { name: profile.name, email: profile.email },
   };
 
