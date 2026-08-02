@@ -1,6 +1,6 @@
-import type { AccountingAdapter } from './adapter';
-import type { AccountingProvider } from './types';
-import { tripletexAdapter } from './tripletex';
+import type { AccountingAdapter } from './adapter.js';
+import type { AccountingProvider } from './types.js';
+import { tripletexAdapter } from './tripletex.js';
 
 // Provider registry. Every endpoint resolves an adapter by the connection's
 // `provider` column and stays otherwise provider-blind. Add qbo/xero here in Phase 1.
@@ -14,5 +14,5 @@ export function getAdapter(provider: AccountingProvider): AccountingAdapter {
   return adapter;
 }
 
-export { TRIPLETEX_SAMPLE_REPORT } from './tripletex';
-export type { NormalizedPnL, AccountingProvider } from './types';
+export { TRIPLETEX_SAMPLE_REPORT } from './tripletex.js';
+export type { NormalizedPnL, AccountingProvider } from './types.js';

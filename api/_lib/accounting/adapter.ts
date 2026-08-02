@@ -1,4 +1,4 @@
-import type { AccountingProvider, NormalizedPnL } from './types';
+import type { AccountingProvider, NormalizedPnL } from './types.js';
 
 export type Period = { start: string; end: string };
 

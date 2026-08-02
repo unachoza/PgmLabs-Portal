@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { requireRole } from '../_lib/auth';
-import { supabaseAdmin } from '../_lib/supabaseAdmin';
-import { fail } from '../_lib/respond';
+import { requireRole } from '../_lib/auth.js';
+import { supabaseAdmin } from '../_lib/supabaseAdmin.js';
+import { fail } from '../_lib/respond.js';
 
 function toCsvValue(value: unknown): string {
   const str = String(value ?? '');

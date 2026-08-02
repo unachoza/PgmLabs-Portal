@@ -1,5 +1,5 @@
-import type { AccountingAdapter, Period } from './adapter';
-import type { NormalizedPnL } from './types';
+import type { AccountingAdapter, Period } from './adapter.js';
+import type { NormalizedPnL } from './types.js';
 
 // Tripletex "Resultatrapport" (P&L) rows: each has a `path` ("Parent > Child")
 // and `cells` positionally aligned to columns [Faktisk, Budsjett, Avvik]. We read

@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { supabaseAdmin } from './supabaseAdmin';
-import { fail } from './respond';
+import { supabaseAdmin } from './supabaseAdmin.js';
+import { fail } from './respond.js';
 
 export type UserRole = 'participant' | 'admin' | 'funder';
 

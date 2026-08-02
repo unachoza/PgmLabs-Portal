@@ -1,11 +1,11 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
-import { requireRole } from '../_lib/auth';
-import { supabaseAdmin } from '../_lib/supabaseAdmin';
-import { ok, fail } from '../_lib/respond';
-import { parseBody } from '../_lib/validate';
-import { getAdapter, TRIPLETEX_SAMPLE_REPORT } from '../_lib/accounting';
-import type { AccountingProvider } from '../_lib/accounting';
+import { requireRole } from '../_lib/auth.js';
+import { supabaseAdmin } from '../_lib/supabaseAdmin.js';
+import { ok, fail } from '../_lib/respond.js';
+import { parseBody } from '../_lib/validate.js';
+import { getAdapter, TRIPLETEX_SAMPLE_REPORT } from '../_lib/accounting.js';
+import type { AccountingProvider } from '../_lib/accounting.js';
 
 const syncSchema = z.object({
   connection_id: z.string().uuid(),

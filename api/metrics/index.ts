@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { requireRole } from '../_lib/auth';
-import { supabaseAdmin } from '../_lib/supabaseAdmin';
-import { ok, fail } from '../_lib/respond';
+import { requireRole } from '../_lib/auth.js';
+import { supabaseAdmin } from '../_lib/supabaseAdmin.js';
+import { ok, fail } from '../_lib/respond.js';
 
 // Aggregate-only endpoint. Reads exclusively from metrics_snapshots — never
 // joins participants/responses — so funders can never receive participant-
