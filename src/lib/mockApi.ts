@@ -1,5 +1,15 @@
-import { addMockParticipant, getMockParticipantForCurrentSession, getMockProfileForCurrentSession, getMockResponse, isMockModeEnabled, mockState, registerMockUser } from './mockRuntime';
-import type { FunderUpdate, KnowledgeBaseArticle, ResponseTag, Survey } from './types';
+import {
+  addMockParticipant,
+  computeMockHousekeepingFeed,
+  getMockParticipantForCurrentSession,
+  getMockProfileForCurrentSession,
+  getMockResponse,
+  isMockModeEnabled,
+  mockState,
+  recordMockHousekeepingResponse,
+  registerMockUser,
+} from './mockRuntime';
+import type { FunderUpdate, HousekeepingResponseValue, KnowledgeBaseArticle, ResponseTag, Survey } from './types';
 
 type MockQuestionType = 'text' | 'number' | 'select' | 'multiselect' | 'boolean';
 
@@ -96,6 +106,10 @@ function handleGet(path: string) {
 
   if (path === '/knowledge-base') {
     return json({ success: true, data: getMockResponse(mockState.knowledgeBase), error: null });
+  }
+
+  if (path === '/housekeeping') {
+    return json({ success: true, data: computeMockHousekeepingFeed(), error: null });
   }
 
   if (path === '/accounting/connections') {
@@ -277,6 +291,19 @@ function handlePost(path: string, body: Record<string, unknown> | null) {
 
   if (path === '/accounting/sync' || path === '/metrics/aggregate-financials') {
     return json({ success: true, data: null, error: null });
+  }
+
+  if (path === '/housekeeping/respond') {
+    const itemKey = String(body?.item_key ?? '');
+    const response = body?.response as HousekeepingResponseValue;
+    recordMockHousekeepingResponse(itemKey, response);
+    return json({ success: true, data: { item_key: itemKey, response }, error: null });
+  }
+
+  if (path === '/housekeeping/send-email') {
+    const itemKey = typeof body?.item_key === 'string' ? body.item_key : null;
+    if (itemKey) recordMockHousekeepingResponse(itemKey, 'yes');
+    return json({ success: true, data: null, error: null }, 201);
   }
 
   if (path.includes('/respond') || path.includes('/submissions') || path.endsWith('/send')) {
