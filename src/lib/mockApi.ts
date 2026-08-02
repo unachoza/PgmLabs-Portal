@@ -72,6 +72,21 @@ function handleGet(path: string) {
     return json({ success: true, data: getMockResponse(participant), error: null });
   }
 
+  if (path.startsWith('/participant-milestones')) {
+    const profile = currentProfile();
+    const [, query] = path.split('?');
+    const filterParticipantId = query ? new URLSearchParams(query).get('participant_id') : null;
+
+    let milestones = mockState.participantMilestones;
+    if (profile?.role === 'participant') {
+      const participant = getMockParticipantForCurrentSession();
+      milestones = participant ? milestones.filter((m) => m.participant_id === participant.id) : [];
+    } else if (filterParticipantId) {
+      milestones = milestones.filter((m) => m.participant_id === filterParticipantId);
+    }
+    return json({ success: true, data: getMockResponse(milestones), error: null });
+  }
+
   if (path === '/checkins') {
     return json({ success: true, data: getMockResponse(mockState.checkins), error: null });
   }
@@ -297,6 +312,26 @@ function handlePost(path: string, body: Record<string, unknown> | null) {
     return json({ success: true, data: getMockResponse(campaign), error: null });
   }
 
+  if (path === '/participant-milestones') {
+    const profile = currentProfile();
+    const participant = getMockParticipantForCurrentSession();
+    const participantId = profile?.role === 'admin' ? String(body?.participant_id ?? '') : participant?.id;
+    if (!participantId) return json({ success: false, data: null, error: 'No participant profile found for this mock session.' }, 404);
+
+    const now = new Date().toISOString();
+    const milestone = {
+      id: `mock-milestone-${Date.now()}`,
+      participant_id: participantId,
+      title: String(body?.title ?? ''),
+      description: typeof body?.description === 'string' ? body.description : null,
+      achieved_on: typeof body?.achieved_on === 'string' ? body.achieved_on : null,
+      created_at: now,
+      updated_at: now,
+    };
+    mockState.participantMilestones.push(milestone);
+    return json({ success: true, data: getMockResponse(milestone), error: null }, 201);
+  }
+
   if (path === '/knowledge-base') {
     const now = new Date().toISOString();
     const article: KnowledgeBaseArticle = {
@@ -438,6 +473,28 @@ function handlePost(path: string, body: Record<string, unknown> | null) {
 }
 
 function handlePatch(path: string, body: Record<string, unknown> | null) {
+  if (path === '/participants/me') {
+    const participant = getMockParticipantForCurrentSession();
+    if (!participant) return json({ success: false, data: null, error: 'No participant profile found for this mock session.' }, 404);
+
+    const editable = ['company_name', 'industry', 'company_website', 'company_description', 'address_line1', 'city', 'state', 'zip_code', 'current_challenges'] as const;
+    for (const key of editable) {
+      if (body && key in body) (participant as unknown as Record<string, unknown>)[key] = body[key] ?? null;
+    }
+    return json({ success: true, data: getMockResponse(participant), error: null });
+  }
+
+  if (path.startsWith('/participant-milestones/')) {
+    const id = path.split('/')[2];
+    const milestone = mockState.participantMilestones.find((m) => m.id === id);
+    if (!milestone) return notFound(path);
+    if (typeof body?.title === 'string') milestone.title = body.title;
+    if ('description' in (body ?? {})) milestone.description = (body?.description as string | null) ?? null;
+    if ('achieved_on' in (body ?? {})) milestone.achieved_on = (body?.achieved_on as string | null) ?? null;
+    milestone.updated_at = new Date().toISOString();
+    return json({ success: true, data: getMockResponse(milestone), error: null });
+  }
+
   if (path.startsWith('/funder-updates/')) {
     const id = path.split('/')[2];
     const update = mockState.funderUpdates.find((item) => item.id === id);
@@ -513,6 +570,12 @@ function handleDelete(path: string) {
   if (path.startsWith('/knowledge-base/')) {
     const id = path.split('/')[2];
     mockState.knowledgeBase = mockState.knowledgeBase.filter((article) => article.id !== id);
+    return json({ success: true, data: null, error: null });
+  }
+
+  if (path.startsWith('/participant-milestones/')) {
+    const id = path.split('/')[2];
+    mockState.participantMilestones = mockState.participantMilestones.filter((m) => m.id !== id);
     return json({ success: true, data: null, error: null });
   }
 
