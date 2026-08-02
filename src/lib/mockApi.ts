@@ -9,7 +9,7 @@ import {
   recordMockHousekeepingResponse,
   registerMockUser,
 } from './mockRuntime';
-import type { FunderUpdate, HousekeepingResponseValue, KnowledgeBaseArticle, ResponseTag, Survey } from './types';
+import type { FunderUpdate, HousekeepingResponseValue, KnowledgeBaseArticle, ProgramEvent, ProgramKpi, ResponseTag, Survey } from './types';
 
 type MockQuestionType = 'text' | 'number' | 'select' | 'multiselect' | 'boolean';
 
@@ -110,6 +110,21 @@ function handleGet(path: string) {
 
   if (path === '/housekeeping') {
     return json({ success: true, data: computeMockHousekeepingFeed(), error: null });
+  }
+
+  if (path === '/program-events') {
+    const withKpis = mockState.programEvents.map((event) => ({
+      ...event,
+      kpis: mockState.programKpis.filter((kpi) => kpi.panel === 'cohort_achievements' && kpi.event_id === event.id),
+    }));
+    return json({ success: true, data: getMockResponse(withKpis), error: null });
+  }
+
+  if (path.startsWith('/program-kpis')) {
+    const [, query] = path.split('?');
+    const panel = query ? new URLSearchParams(query).get('panel') : null;
+    const filtered = panel ? mockState.programKpis.filter((kpi) => kpi.panel === panel) : mockState.programKpis;
+    return json({ success: true, data: getMockResponse(filtered), error: null });
   }
 
   if (path === '/accounting/connections') {
@@ -265,6 +280,40 @@ function handlePost(path: string, body: Record<string, unknown> | null) {
     return json({ success: true, data: getMockResponse(article), error: null });
   }
 
+  if (path === '/program-events') {
+    const now = new Date().toISOString();
+    const event: ProgramEvent = {
+      id: `mock-event-${Date.now()}`,
+      title: String(body?.title ?? ''),
+      description: typeof body?.description === 'string' ? body.description : null,
+      event_type: (body?.event_type as ProgramEvent['event_type']) ?? 'upcoming',
+      event_date: String(body?.event_date ?? now.slice(0, 10)),
+      cohort: typeof body?.cohort === 'string' ? body.cohort : null,
+      location: typeof body?.location === 'string' ? body.location : null,
+      created_by: currentProfile()?.id ?? 'mock-admin',
+      created_at: now,
+      updated_at: now,
+    };
+    mockState.programEvents.push(event);
+    return json({ success: true, data: getMockResponse(event), error: null });
+  }
+
+  if (path === '/program-kpis') {
+    const kpi: ProgramKpi = {
+      id: `mock-kpi-${Date.now()}`,
+      panel: (body?.panel as ProgramKpi['panel']) ?? 'cohort_achievements',
+      event_id: typeof body?.event_id === 'string' ? body.event_id : null,
+      label: String(body?.label ?? ''),
+      value: String(body?.value ?? ''),
+      period_label: typeof body?.period_label === 'string' ? body.period_label : null,
+      sort_order: Number(body?.sort_order ?? mockState.programKpis.length),
+      created_by: currentProfile()?.id ?? 'mock-admin',
+      created_at: new Date().toISOString(),
+    };
+    mockState.programKpis.push(kpi);
+    return json({ success: true, data: getMockResponse(kpi), error: null });
+  }
+
   if (path === '/accounting/connections') {
     const profileOrResponse = requireProfile(path);
     if (profileOrResponse instanceof Response) return profileOrResponse;
@@ -343,6 +392,20 @@ function handlePatch(path: string, body: Record<string, unknown> | null) {
     return json({ success: true, data: getMockResponse(article), error: null });
   }
 
+  if (path.startsWith('/program-events/')) {
+    const id = path.split('/')[2];
+    const event = mockState.programEvents.find((item) => item.id === id);
+    if (!event) return notFound(path);
+    if (typeof body?.title === 'string') event.title = body.title;
+    if (typeof body?.description === 'string') event.description = body.description;
+    if (body?.event_type === 'upcoming' || body?.event_type === 'past') event.event_type = body.event_type;
+    if (typeof body?.event_date === 'string') event.event_date = body.event_date;
+    if (typeof body?.cohort === 'string') event.cohort = body.cohort;
+    if (typeof body?.location === 'string') event.location = body.location;
+    event.updated_at = new Date().toISOString();
+    return json({ success: true, data: getMockResponse(event), error: null });
+  }
+
   return notFound(path);
 }
 
@@ -378,6 +441,19 @@ function handleDelete(path: string) {
     return json({ success: true, data: null, error: null });
   }
 
+  if (path.startsWith('/program-events/')) {
+    const id = path.split('/')[2];
+    mockState.programEvents = mockState.programEvents.filter((event) => event.id !== id);
+    mockState.programKpis = mockState.programKpis.filter((kpi) => kpi.event_id !== id);
+    return json({ success: true, data: null, error: null });
+  }
+
+  if (path.startsWith('/program-kpis/')) {
+    const id = path.split('/')[2];
+    mockState.programKpis = mockState.programKpis.filter((kpi) => kpi.id !== id);
+    return json({ success: true, data: null, error: null });
+  }
+
   return notFound(path);
 }
 
@@ -393,7 +469,7 @@ export function installMockApi() {
       return originalFetch(input, init);
     }
 
-    const path = parsed.pathname.slice('/api'.length) || '/';
+    const path = (parsed.pathname.slice('/api'.length) || '/') + parsed.search;
     const method = (init?.method ?? (input instanceof Request ? input.method : 'GET')).toUpperCase();
     const body = getBody(init);
 

@@ -9,6 +9,8 @@ import type {
   MarketingCampaign,
   MetricSnapshot,
   Participant,
+  ProgramEvent,
+  ProgramKpi,
   Profile,
   PnLSnapshot,
   ResponseTag,
@@ -38,6 +40,8 @@ type MockState = {
   snapshots: PnLSnapshot[];
   knowledgeBase: KnowledgeBaseArticle[];
   housekeepingResponses: MockHousekeepingResponse[];
+  programEvents: ProgramEvent[];
+  programKpis: ProgramKpi[];
 };
 
 export type MockResponseRow = {
@@ -354,6 +358,32 @@ export const mockState: MockState = {
     },
   ],
   housekeepingResponses: [],
+  programEvents: [
+    {
+      id: 'mock-event-1',
+      title: 'Cohort 10 Graduation',
+      description:
+        'Inaugural SDCCE Accelerator cohort graduation — 10 companies completed the free 4-month program covering sales, finance, marketing, and business model, with small-group mentoring and weekly check-ins.',
+      event_type: 'past',
+      event_date: '2025-11-20',
+      cohort: 'Cohort 10',
+      location: 'Barrio Logan, San Diego',
+      created_by: 'mock-admin',
+      created_at: '2025-11-20T00:00:00.000Z',
+      updated_at: '2025-11-20T00:00:00.000Z',
+    },
+  ],
+  programKpis: [
+    { id: 'mock-kpi-1', panel: 'cohort_achievements', event_id: 'mock-event-1', label: 'Cohort Companies', value: '10', period_label: null, sort_order: 1, created_by: 'mock-admin', created_at: '2025-11-20T00:00:00.000Z' },
+    { id: 'mock-kpi-2', panel: 'cohort_achievements', event_id: 'mock-event-1', label: 'Hours of 1-on-1 Coaching', value: '82', period_label: null, sort_order: 2, created_by: 'mock-admin', created_at: '2025-11-20T00:00:00.000Z' },
+    { id: 'mock-kpi-3', panel: 'cohort_achievements', event_id: 'mock-event-1', label: 'Increased Revenue During Program', value: '30%', period_label: null, sort_order: 3, created_by: 'mock-admin', created_at: '2025-11-20T00:00:00.000Z' },
+    { id: 'mock-kpi-4', panel: 'cohort_achievements', event_id: 'mock-event-1', label: 'Founders Reported Increase in Confidence', value: '100%', period_label: null, sort_order: 4, created_by: 'mock-admin', created_at: '2025-11-20T00:00:00.000Z' },
+    { id: 'mock-kpi-5', panel: 'resource_center_activity', event_id: null, label: 'Technical Assistance Sessions', value: '61', period_label: 'May - Dec 2025', sort_order: 1, created_by: 'mock-admin', created_at: '2025-12-01T00:00:00.000Z' },
+    { id: 'mock-kpi-6', panel: 'resource_center_activity', event_id: null, label: 'Community Workshops', value: '11', period_label: 'May - Dec 2025', sort_order: 2, created_by: 'mock-admin', created_at: '2025-12-01T00:00:00.000Z' },
+    { id: 'mock-kpi-7', panel: 'resource_center_activity', event_id: null, label: 'Unique Visitors', value: '132', period_label: 'May - Dec 2025', sort_order: 3, created_by: 'mock-admin', created_at: '2025-12-01T00:00:00.000Z' },
+    { id: 'mock-kpi-8', panel: 'resource_center_activity', event_id: null, label: 'Repeat Visitors', value: '26%', period_label: 'May - Dec 2025', sort_order: 4, created_by: 'mock-admin', created_at: '2025-12-01T00:00:00.000Z' },
+    { id: 'mock-kpi-9', panel: 'resource_center_activity', event_id: null, label: 'Workshops Facilitated By Alumni', value: '9', period_label: 'May - Dec 2025', sort_order: 5, created_by: 'mock-admin', created_at: '2025-12-01T00:00:00.000Z' },
+  ],
 };
 
 export function isMockModeEnabled(): boolean {
