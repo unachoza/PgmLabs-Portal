@@ -1,0 +1,37 @@
+{
+  "name": "program-labs",
+  "owner": {
+    "name": "The Program Labs",
+    "email": "alex@theprogramlabs.org"
+  },
+  "metadata": {
+    "description": "Skills for The Program Labs — turning the AI Trailblazers Social Impact Hack-AI-thon and the Program Labs accelerator story into outward-facing work: conference proposals, speaker applications, and partner-facing materials.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "program-labs",
+      "displayName": "Program Labs",
+      "source": "./plugins/program-labs",
+      "description": "Draft and auto-fill conference speaker proposals from Alex Waters' standing story bank. Reads a call-for-speakers application, maps every field, writes a paste-ready answer within each stated limit, then fills the live form in the browser and stops before submit.",
+      "version": "1.0.0",
+      "author": {
+        "name": "The Program Labs"
+      },
+      "keywords": [
+        "conference",
+        "speaker",
+        "cfp",
+        "cfs",
+        "call-for-speakers",
+        "proposal",
+        "abstract",
+        "nonprofit",
+        "workforce-development",
+        "hackathon",
+        "browser-automation",
+        "form-filling"
+      ]
+    }
+  ]
+}

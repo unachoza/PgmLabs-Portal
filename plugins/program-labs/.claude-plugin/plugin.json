@@ -1,0 +1,18 @@
+{
+  "name": "program-labs",
+  "description": "Draft and auto-fill conference speaker proposals from Alex Waters' standing story bank. Reads a call-for-speakers application, maps every field, writes a paste-ready answer within each stated limit, then fills the live form in the browser and stops before submit.",
+  "version": "1.0.0",
+  "author": {
+    "name": "The Program Labs",
+    "email": "alex@theprogramlabs.org"
+  },
+  "keywords": [
+    "conference",
+    "speaker",
+    "cfp",
+    "proposal",
+    "nonprofit",
+    "workforce-development",
+    "browser-automation"
+  ]
+}
