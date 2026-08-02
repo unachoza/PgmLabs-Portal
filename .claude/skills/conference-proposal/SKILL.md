@@ -37,7 +37,8 @@ For each field, write a tailored answer from the kit:
 - **Respect limits.** If a field caps at 100 words / 500 chars, hit it — never overflow. Offer a tighter version if it's close.
 - **Use the right length variant** (title, one-liner, short/medium/long description, bio short/medium/long) rather than padding or truncating mid-sentence.
 - **Adapt, don't reword blindly.** Swap in the conference's language for its audience; keep Alex's voice and the core story intact.
-- **ED example story:** wherever the hero example appears, use the `[ED-NAME]` placeholder block from the kit and add a visible note: *"⚠️ swap in the real, permissioned ED name/org/quote before submitting."*
+- **ED example story:** use the anonymized hero-story block from the kit and add a visible note: *"⚠️ swap in the real, permissioned ED name/org/quote before submitting (hackathon judging finalizes Monday)."*
+- **Attribution:** honor the ⚠️ warnings at the top of the kit — reframe the hackathon as a **Program Labs × AI Trailblazers** partnership (not sole Program Labs authorship), and use **Executive Director** as Alex's title unless told otherwise.
 - Never fabricate metrics. If the form wants a number the kit doesn't have, mark `[CONFIRM with Alex]`.
 
 ### 5. Deliver the submission sheet
