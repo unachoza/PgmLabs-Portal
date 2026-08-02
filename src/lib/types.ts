@@ -111,6 +111,23 @@ export type AccountingConnection = {
   participants?: { cohort: string; company_name: string | null; profiles?: { name: string } };
 };
 
+export type KnowledgeBaseLink = {
+  label: string;
+  url: string;
+};
+
+export type KnowledgeBaseArticle = {
+  id: string;
+  category: string;
+  title: string;
+  content: string | null;
+  links: KnowledgeBaseLink[];
+  created_by: string;
+  updated_by: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
 export type PnLSnapshot = {
   id: string;
   connection_id: string;
