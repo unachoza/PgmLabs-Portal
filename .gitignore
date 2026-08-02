@@ -33,3 +33,5 @@ dist-ssr
 
 .claude/*
 !.claude/skills/
+
+.claude/
