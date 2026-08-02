@@ -10,6 +10,11 @@ const METRIC_LABELS: Record<string, string> = {
   capital_raised_usd: 'Capital Raised (USD)',
   milestone_completion_rate: 'Milestone Completion Rate',
   response_rate: 'Response Rate',
+  // Verified financials, aggregated from company P&L (never raw participant data).
+  cohort_revenue: 'Cohort Revenue',
+  cohort_net_result: 'Cohort Net Result',
+  companies_profitable: 'Companies Profitable',
+  companies_burning_cash: 'Companies Burning Cash',
 };
 
 export function FunderDashboardPage() {

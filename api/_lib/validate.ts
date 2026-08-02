@@ -1,6 +1,6 @@
 import type { VercelResponse } from '@vercel/node';
 import type { ZodType } from 'zod';
-import { fail } from './respond';
+import { fail } from './respond.js';
 
 export function parseBody<T>(res: VercelResponse, schema: ZodType<T>, body: unknown): T | null {
   const result = schema.safeParse(body);

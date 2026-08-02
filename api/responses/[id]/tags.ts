@@ -1,9 +1,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { z } from 'zod';
-import { requireRole } from '../../_lib/auth';
-import { supabaseAdmin } from '../../_lib/supabaseAdmin';
-import { ok, fail } from '../../_lib/respond';
-import { parseBody } from '../../_lib/validate';
+import { requireRole } from '../../_lib/auth.js';
+import { supabaseAdmin } from '../../_lib/supabaseAdmin.js';
+import { ok, fail } from '../../_lib/respond.js';
+import { parseBody } from '../../_lib/validate.js';
 
 const tagSchema = z.object({
   tags: z.array(z.enum(['growth', 'hiring', 'funding', 'risk', 'other'])),

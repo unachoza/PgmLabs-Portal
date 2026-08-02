@@ -91,3 +91,42 @@ export type MetricSnapshot = {
   metric_value: number;
   captured_at: string;
 };
+
+export type AccountingProvider = 'tripletex' | 'qbo' | 'xero' | 'wave';
+
+export type ConnectionStatus = 'pending' | 'active' | 'revoked' | 'error';
+
+export type AccountingConnection = {
+  id: string;
+  participant_id: string;
+  provider: AccountingProvider;
+  external_company_id: string | null;
+  external_company_name: string | null;
+  status: ConnectionStatus;
+  scope: string;
+  connected_at: string | null;
+  last_synced_at: string | null;
+  last_error: string | null;
+  created_at: string;
+  participants?: { cohort: string; company_name: string | null; profiles?: { name: string } };
+};
+
+export type PnLSnapshot = {
+  id: string;
+  connection_id: string;
+  participant_id: string;
+  cohort: string | null;
+  provider: AccountingProvider;
+  currency: string;
+  period_start: string;
+  period_end: string;
+  revenue: number;
+  cogs: number;
+  payroll: number;
+  other_opex: number;
+  net_result: number;
+  source: 'sync' | 'manual';
+  pulled_at: string;
+  accounting_connections?: { external_company_name: string | null };
+  participants?: { company_name: string | null; profiles?: { name: string } };
+};
