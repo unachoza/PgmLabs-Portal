@@ -11,7 +11,7 @@ export function KpiCard({
   verified?: boolean;
 }) {
   return (
-    <div className={`card${verified ? ' card-verified' : ''}`}>
+    <div className="card">
       <div className="card-title-row">
         <div className="card-title">{title}</div>
         {verified && (

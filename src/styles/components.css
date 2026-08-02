@@ -55,13 +55,11 @@
 }
 
 /* Distinguishes automatically-pulled figures (e.g. Cohort Financials) from
-   self-reported ones elsewhere in the app — a deliberate visual signal, not
-   just copy, per the product's "verified over self-reported" principle. */
-.card-verified {
-  border-color: var(--color-verified);
-  border-left-width: 3px;
-}
-
+   self-reported ones elsewhere in the app, per the product's "verified over
+   self-reported" principle. Carried by the badge alone (checkmark + tinted
+   color) rather than also striping the card border — a colored side-tab on
+   a card is one of the most recognizable AI-generated-UI tells, and it was
+   redundant chrome once the badge already says "verified." */
 .badge-verified {
   color: var(--color-verified);
   border-color: var(--color-verified);
