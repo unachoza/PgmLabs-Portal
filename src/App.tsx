@@ -3,6 +3,7 @@ import { AppShell } from './layouts/AppShell';
 import { ProtectedRoute } from './auth/ProtectedRoute';
 import { useAuth } from './auth/AuthContext';
 import { LoginPage } from './pages/LoginPage';
+import { SignupPage } from './pages/SignupPage';
 import { ParticipantProfilePage } from './features/participant/ParticipantProfilePage';
 import { ParticipantCheckinsPage } from './features/participant/ParticipantCheckinsPage';
 import { ParticipantSurveysPage } from './features/participant/ParticipantSurveysPage';
@@ -40,6 +41,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/signup" element={<SignupPage />} />
 
       <Route
         element={

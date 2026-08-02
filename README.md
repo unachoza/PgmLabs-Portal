@@ -31,6 +31,7 @@ cp .env.example .env
 - `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` — browser-only Supabase auth.
 - `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` — server-only Supabase access for API functions and sync scripts. **Never** expose the service-role key to the browser; it bypasses RLS.
 - `HUBSPOT_TOKEN` — HubSpot private app access token used by the sync script.
+- `VITE_AUTH_MODE` — optional. Leave unset for local mock auth/API in development, or set to `real` to hit real Supabase auth.
 
 For HubSpot, create a private app in HubSpot and grant these read scopes:
 
@@ -76,6 +77,8 @@ Vite serves the frontend. To exercise the `/api` functions locally you need the 
 ```bash
 vercel dev
 ```
+
+By default, local development uses mock auth/API handlers so signup and login work without Vercel. Set `VITE_AUTH_MODE=real` if you want to test against live Supabase auth locally.
 
 ## Scripts
 

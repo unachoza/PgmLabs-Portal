@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../auth/AuthContext';
 import { FormField } from '../components/FormField';
 import './LoginPage.css';
@@ -63,6 +63,9 @@ export function LoginPage() {
         <button className="btn" type="submit" disabled={submitting}>
           {submitting ? 'Signing in…' : 'Sign in'}
         </button>
+        <p className="auth-switch">
+          Need an account? <Link to="/signup">Create one</Link>
+        </p>
       </form>
     </div>
   );

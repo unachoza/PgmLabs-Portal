@@ -16,3 +16,26 @@
   max-width: 380px;
   box-shadow: var(--shadow-md);
 }
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.auth-switch {
+  margin-top: var(--space-4);
+  margin-bottom: 0;
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.auth-switch a {
+  font-weight: 600;
+}
+
+@media (max-width: 520px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+}
